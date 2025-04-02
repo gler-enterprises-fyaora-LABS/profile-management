@@ -11,9 +11,10 @@ The UserType Service manages user types including Service Providers and Customer
 GET /api/user-type/{id}
 ```
 Response:
+- ```type:``` 1 = Service Provider, 2 = Customer
 ```json
 {
-  "type": 1,  // 1 = Service Provider, 2 = Customer
+  "type": 1,
   "description": "Service Provider",
   "enabled": true
 }
