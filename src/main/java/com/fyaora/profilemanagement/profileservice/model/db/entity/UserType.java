@@ -1,4 +1,4 @@
-package com.fyaora.typeprovider.typeprovider.model.db.entity;
+package com.fyaora.profilemanagement.profileservice.model.db.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

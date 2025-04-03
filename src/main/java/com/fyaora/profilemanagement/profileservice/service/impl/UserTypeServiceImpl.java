@@ -1,8 +1,8 @@
-package com.fyaora.typeprovider.typeprovider.service.impl;
+package com.fyaora.profilemanagement.profileservice.service.impl;
 
-import com.fyaora.typeprovider.typeprovider.dto.UserTypeDTO;
-import com.fyaora.typeprovider.typeprovider.model.db.entity.UserType;
-import com.fyaora.typeprovider.typeprovider.model.db.repository.UserTypeRepository;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
+import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

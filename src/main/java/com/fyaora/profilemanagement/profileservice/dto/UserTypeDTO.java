@@ -1,4 +1,4 @@
-package com.fyaora.typeprovider.typeprovider.dto;
+package com.fyaora.profilemanagement.profileservice.dto;
 
 import lombok.Getter;
 import lombok.Setter;

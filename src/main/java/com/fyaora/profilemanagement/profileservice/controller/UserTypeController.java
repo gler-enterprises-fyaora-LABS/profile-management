@@ -1,8 +1,8 @@
-package com.fyaora.typeprovider.typeprovider.controller;
+package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.typeprovider.typeprovider.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 
-import com.fyaora.typeprovider.typeprovider.service.impl.UserTypeServiceImpl;
+import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

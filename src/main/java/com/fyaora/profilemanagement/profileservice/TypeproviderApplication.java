@@ -1,4 +1,4 @@
-package com.fyaora.typeprovider.typeprovider;
+package com.fyaora.profilemanagement.profileservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
