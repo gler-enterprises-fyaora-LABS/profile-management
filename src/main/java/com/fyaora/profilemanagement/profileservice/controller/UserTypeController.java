@@ -2,6 +2,7 @@ package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class UserTypeController {
     }
 
     @GetMapping("/{type}")
-    public ResponseEntity<?> getUserTypeByType(@PathVariable Integer type) {
+    public ResponseEntity<?> getUserTypeByType(@PathVariable UserTypeEnum type) {
         UserTypeDTO userTypeDTO = userTypeService.findByType(type);
         return ResponseEntity.ok(userTypeDTO);
     }
