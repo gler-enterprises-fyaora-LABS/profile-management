@@ -1,15 +1,18 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
+import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
+import com.fyaora.profilemanagement.profileservice.model.db.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
+import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class UserTypeServiceImpl {
+public class UserTypeServiceImpl implements UserTypeService {
 
     private final UserTypeRepository userTypeRepository;
 
@@ -18,12 +21,14 @@ public class UserTypeServiceImpl {
         this.userTypeRepository = userTypeRepository;
     }
 
-    public Optional<UserTypeDTO> findByType(Integer type) {
-        Optional<UserType> userType = userTypeRepository.findById(type);
-        return userType.map(this::convertToDTO); // Convert to DTO before returning
-    }
 
-    private UserTypeDTO convertToDTO(UserType userType) {
-        return new UserTypeDTO(userType.getType(), userType.getDescription(), userType.getEnabled());
+    public UserTypeDTO findByType(Integer type) {
+        if (type == null || type <= 0) {
+            throw new IllegalArgumentException("User type cannot be null.");
+        }
+        UserType userType = userTypeRepository.findByType(type)
+                .orElseThrow(() -> new UserTypeNotFoundException("Invalid user type provided."));
+
+        return UserTypeMapper.INSTANCE.userTypeToUserTypeDTO(userType);
     }
 }
