@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/user-type")
+@RequestMapping("/api/v1/user-type")
 public class UserTypeController {
 
     private final UserTypeServiceImpl userTypeServiceImpl;
