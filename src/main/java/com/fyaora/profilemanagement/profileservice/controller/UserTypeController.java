@@ -18,7 +18,7 @@ public class UserTypeController {
 
     private final UserTypeService userTypeService;
 
-    public UserTypeController(UserTypeServiceImpl userTypeServiceImpl, UserTypeService userTypeService) {
+    public UserTypeController(UserTypeService userTypeService) {
         this.userTypeService = userTypeService;
     }
 
