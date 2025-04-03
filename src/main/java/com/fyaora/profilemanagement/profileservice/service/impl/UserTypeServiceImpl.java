@@ -3,6 +3,7 @@ package com.fyaora.profilemanagement.profileservice.service.impl;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
@@ -22,8 +23,8 @@ public class UserTypeServiceImpl implements UserTypeService {
     }
 
 
-    public UserTypeDTO findByType(Integer type) {
-        if (type == null || type <= 0) {
+    public UserTypeDTO findByType(UserTypeEnum type) {
+        if (type == null) {
             throw new IllegalArgumentException("User type cannot be null.");
         }
         UserType userType = userTypeRepository.findByType(type)
