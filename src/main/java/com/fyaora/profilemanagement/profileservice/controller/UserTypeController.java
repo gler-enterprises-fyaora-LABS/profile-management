@@ -16,11 +16,9 @@ import java.util.Optional;
 @RequestMapping("/api/v1/user-type")
 public class UserTypeController {
 
-    private final UserTypeServiceImpl userTypeServiceImpl;
     private final UserTypeService userTypeService;
 
     public UserTypeController(UserTypeServiceImpl userTypeServiceImpl, UserTypeService userTypeService) {
-        this.userTypeServiceImpl = userTypeServiceImpl;
         this.userTypeService = userTypeService;
     }
 
