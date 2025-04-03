@@ -27,8 +27,16 @@ CREATE TABLE IF NOT EXISTS user_type (
     type INT NOT NULL, -- 1 = Service Provider, 2 = Customer
     description VARCHAR(50) NOT NULL,
     enabled BOOLEAN NOT NULL
-);
+);      
 ```
+### Flyway migration errors
+- For a **FlywayValidateException** or a **Migration checksum mismatch**, either:
+    1. Create a new Flyway migration file in  
+       ```src/main/resources/scripts/```
+    2. Drop the **local** database: ⚠️ **Dangerous:** This **deletes all data**
+       ```sql
+       DROP DATABASE your_database_name;
+        ```
 ### Build & Run Locally
 1. Build
 ```
