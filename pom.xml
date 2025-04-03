@@ -8,10 +8,10 @@
         <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.fyaora.typeprovider</groupId>
-    <artifactId>typeprovider</artifactId>
+    <groupId>com.fyaora.profilemanagement</groupId>
+    <artifactId>profile-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>typeprovider</name>
+    <name>Profile Service</name>
     <description>Type Provider for Customers and Service Provider</description>
 
     <dependencies>
