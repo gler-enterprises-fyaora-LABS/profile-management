@@ -16,10 +16,12 @@ import java.util.Optional;
 public class UserTypeServiceImpl implements UserTypeService {
 
     private final UserTypeRepository userTypeRepository;
+    private final UserTypeMapper userTypeMapper;
 
     @Autowired
-    public UserTypeServiceImpl(UserTypeRepository userTypeRepository) {
+    public UserTypeServiceImpl(UserTypeRepository userTypeRepository, UserTypeMapper userTypeMapper) {
         this.userTypeRepository = userTypeRepository;
+        this.userTypeMapper = userTypeMapper;
     }
 
 
@@ -30,6 +32,7 @@ public class UserTypeServiceImpl implements UserTypeService {
         UserType userType = userTypeRepository.findByType(type)
                 .orElseThrow(() -> new UserTypeNotFoundException("Invalid user type provided."));
 
-        return UserTypeMapper.INSTANCE.userTypeToUserTypeDTO(userType);
+        return userTypeMapper.userTypeToUserTypeDTO(userType);
+
     }
 }
