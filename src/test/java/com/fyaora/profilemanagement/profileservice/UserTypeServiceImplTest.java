@@ -49,4 +49,20 @@ class UserTypeServiceImplTest {
         );
         assertEquals("Invalid user type provided.", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Test: Throw UserTypeNotFoundException when CUSTOMER_PROVIDER is not found")
+    void testFindByType_NotFound_CustomerProvider() {
+        UserTypeEnum type = UserTypeEnum.CUSTOMER_PROVIDER;
+
+        // Mocking the repository to return empty for the given type
+        when(userTypeRepository.findByType(type)).thenReturn(Optional.empty());
+
+        // Assert that the exception is thrown and message matches
+        UserTypeNotFoundException exception = assertThrows(
+                UserTypeNotFoundException.class,
+                () -> userTypeService.findByType(type)
+        );
+        assertEquals("Invalid user type provided.", exception.getMessage());
+    }
 }
