@@ -6,6 +6,8 @@ import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceI
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,40 +31,22 @@ class UserTypeServiceImplTest {
     void testFindByType_NullInput() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userTypeService.findByType(null)
+                () -> userTypeService.getUserType(null)
         );
         assertEquals("User type cannot be null.", exception.getMessage());
     }
 
-    @Test
+    @ParameterizedTest
+    @EnumSource(UserTypeEnum.class)
     @DisplayName("Test: Throw UserTypeNotFoundException when UserType is not found")
-    void testFindByType_NotFound() {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+    void testFindByType_NotFoundParameterized(UserTypeEnum type) {
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
 
-        // Mocking the repository to return empty for the given type
-        when(userTypeRepository.findByType(type)).thenReturn(Optional.empty());
-
-        // Assert that the exception is thrown and message matches
         UserTypeNotFoundException exception = assertThrows(
                 UserTypeNotFoundException.class,
-                () -> userTypeService.findByType(type)
+                () -> userTypeService.getUserType(type)
         );
-        assertEquals("Invalid user type provided.", exception.getMessage());
-    }
 
-    @Test
-    @DisplayName("Test: Throw UserTypeNotFoundException when CUSTOMER_PROVIDER is not found")
-    void testFindByType_NotFound_CustomerProvider() {
-        UserTypeEnum type = UserTypeEnum.CUSTOMER_PROVIDER;
-
-        // Mocking the repository to return empty for the given type
-        when(userTypeRepository.findByType(type)).thenReturn(Optional.empty());
-
-        // Assert that the exception is thrown and message matches
-        UserTypeNotFoundException exception = assertThrows(
-                UserTypeNotFoundException.class,
-                () -> userTypeService.findByType(type)
-        );
         assertEquals("Invalid user type provided.", exception.getMessage());
     }
 }
