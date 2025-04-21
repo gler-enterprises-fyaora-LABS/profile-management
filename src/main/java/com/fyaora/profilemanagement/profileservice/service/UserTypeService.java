@@ -4,5 +4,5 @@ import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 
 public interface UserTypeService {
-    UserTypeDTO findByType(UserTypeEnum type);
+    UserTypeDTO getUserType(UserTypeEnum type);
 }

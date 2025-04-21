@@ -23,7 +23,7 @@ public class UserTypeServiceImpl implements UserTypeService {
     }
 
 
-    public UserTypeDTO findByType(UserTypeEnum type) {
+    public UserTypeDTO getUserType(UserTypeEnum type) {
         if (type == null) {
             throw new IllegalArgumentException("User type cannot be null.");
         }

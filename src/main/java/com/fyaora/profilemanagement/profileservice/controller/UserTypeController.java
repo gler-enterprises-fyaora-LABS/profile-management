@@ -22,7 +22,7 @@ public class UserTypeController {
 
     @GetMapping("/{type}")
     public ResponseEntity<?> getUserTypeByType(@PathVariable UserTypeEnum type) {
-        UserTypeDTO userTypeDTO = userTypeService.findByType(type);
+        UserTypeDTO userTypeDTO = userTypeService.getUserType(type);
         // If userTypeDTO is null, this will return a 200 OK response with no body.
         return ResponseEntity.ok(userTypeDTO);
     }
