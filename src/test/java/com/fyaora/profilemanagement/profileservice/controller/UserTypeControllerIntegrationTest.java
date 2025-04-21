@@ -32,14 +32,14 @@ class UserTypeControllerIntegrationTest {
     @Test
     @DisplayName("Integration Test: Successfully get user type for REGISTRATION_SERVICE_PROVIDER")
     void testGetUserTypeByType_RegistrationServiceProvider() throws Exception {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
         UserTypeDTO mockUserTypeDTO = new UserTypeDTO();
         mockUserTypeDTO.setType(type);
         mockUserTypeDTO.setDescription("Service Provider Type Test");
         mockUserTypeDTO.setEnabled(true);
 
         // Mock the service method
-        when(userTypeService.findByType(type)).thenReturn(mockUserTypeDTO);
+        when(userTypeService.getUserType(type)).thenReturn(mockUserTypeDTO);
 
         // Perform GET request and verify the result
         mockMvc.perform(get("/api/v1/user-type/{type}", type))
@@ -50,10 +50,10 @@ class UserTypeControllerIntegrationTest {
     @Test
     @DisplayName("Integration Test: Handle null response body")
     void testGetUserTypeByType_NullResponseBody() throws Exception {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
 
         // Mock the service method to return null
-        when(userTypeService.findByType(type)).thenReturn(null);
+        when(userTypeService.getUserType(type)).thenReturn(null);
 
         // Perform GET request and verify the result
         mockMvc.perform(get("/api/v1/user-type/{type}", type))
@@ -64,10 +64,10 @@ class UserTypeControllerIntegrationTest {
     @Test
     @DisplayName("Integration Test: Handle UserTypeNotFoundException when user type not found")
     void testGetUserTypeByType_NotFound() throws Exception {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
 
         // Mock the service to throw UserTypeNotFoundException
-        when(userTypeService.findByType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
+        when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
 
         // Perform GET request and verify the exception handling
         mockMvc.perform(get("/api/v1/user-type/{type}", type))

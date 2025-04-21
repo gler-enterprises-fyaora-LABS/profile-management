@@ -26,16 +26,16 @@ class UserTypeControllerTest {
     private UserTypeController userTypeController;
 
     @Test
-    @DisplayName("Test: Successfully get user type for REGISTRATION_SERVICE_PROVIDER")
+    @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER")
     void testGetUserTypeByType_RegistrationServiceProvider() {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
         UserTypeDTO mockUserTypeDTO = new UserTypeDTO();
         mockUserTypeDTO.setType(type);
         mockUserTypeDTO.setDescription("Service Provider Type Test");
         mockUserTypeDTO.setEnabled(true);
 
         // Mock the service method
-        when(userTypeService.findByType(type)).thenReturn(mockUserTypeDTO);
+        when(userTypeService.getUserType(type)).thenReturn(mockUserTypeDTO);
 
         // Call the controller method
         ResponseEntity<?> response = userTypeController.getUserTypeByType(type);
@@ -48,10 +48,10 @@ class UserTypeControllerTest {
     @Test
     @DisplayName("Test: Handle null response body")
     void testGetUserTypeByType_NullResponseBody() {
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
 
         // Mock the service method to return null
-        when(userTypeService.findByType(type)).thenReturn(null);
+        when(userTypeService.getUserType(type)).thenReturn(null);
 
         // Call the controller method
         ResponseEntity<?> response = userTypeController.getUserTypeByType(type);
@@ -67,10 +67,10 @@ class UserTypeControllerTest {
     @DisplayName("Test: Handle UserTypeNotFoundException when user type not found")
     void testGetUserTypeByType_NotFound() {
         // Arrange
-        UserTypeEnum type = UserTypeEnum.REGISTRATION_SERVICE_PROVIDER;
+        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
 
         // Mock the service to throw the exception
-        when(userTypeService.findByType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
+        when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
 
         // Act & Assert
         // We expect an exception to be thrown here, which will be caught by the global exception handler
@@ -89,7 +89,7 @@ class UserTypeControllerTest {
         UserTypeEnum type = null;
 
         // Mock the service to throw the exception when null is passed
-        when(userTypeService.findByType(type)).thenThrow(new IllegalArgumentException("User type cannot be null."));
+        when(userTypeService.getUserType(type)).thenThrow(new IllegalArgumentException("User type cannot be null."));
 
         // Act & Assert
         // We expect an IllegalArgumentException to be thrown here
@@ -100,6 +100,5 @@ class UserTypeControllerTest {
         // Assert the exception message
         assertEquals("User type cannot be null.", thrown.getMessage());
     }
-
 }
 
