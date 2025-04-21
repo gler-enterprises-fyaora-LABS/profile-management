@@ -15,8 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
 @AutoConfigureMockMvc
@@ -44,7 +43,7 @@ class UserTypeControllerIntegrationTest {
         // Perform GET request and verify the result
         mockMvc.perform(get("/api/v1/user-type/{type}", type))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"type\":\"REGISTRATION_SERVICE_PROVIDER\",\"description\":\"Service Provider Type Test\",\"enabled\":true}"));
+                .andExpect(content().json("{\"type\":\"SERVICE_PROVIDER\",\"description\":\"Service Provider Type Test\",\"enabled\":true}"));
     }
 
     @Test
@@ -71,8 +70,11 @@ class UserTypeControllerIntegrationTest {
 
         // Perform GET request and verify the exception handling
         mockMvc.perform(get("/api/v1/user-type/{type}", type))
-                .andExpect(status().isBadRequest())  // Expecting 400 status due to global exception handler
-                .andExpect(content().string("Invalid user type provided."));
+                .andExpect(status().isNotFound())  // Expecting 404 now
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Invalid user type provided."))
+                .andExpect(jsonPath("$.path").value("/api/v1/user-type/" + type.name()));
     }
 
     @Test
