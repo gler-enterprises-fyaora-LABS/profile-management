@@ -4,13 +4,11 @@ import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundExcept
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
-import com.fyaora.profilemanagement.profileservice.model.db.mapping.UserTypeMapper;
+import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserTypeServiceImpl implements UserTypeService {
