@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface UserTypeRepository extends JpaRepository<UserType, Integer> {
 
-    Optional<UserType> findByType(UserTypeEnum type);
+    Optional<UserType> findByTypeAndEnabled(UserTypeEnum type, Boolean enabled);
 }

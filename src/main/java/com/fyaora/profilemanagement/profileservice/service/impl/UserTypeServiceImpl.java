@@ -27,10 +27,9 @@ public class UserTypeServiceImpl implements UserTypeService {
         if (type == null) {
             throw new IllegalArgumentException("User type cannot be null.");
         }
-        UserType userType = userTypeRepository.findByType(type)
+        UserType userType = userTypeRepository.findByTypeAndEnabled(type, Boolean.TRUE)
                 .orElseThrow(() -> new UserTypeNotFoundException("Invalid user type provided."));
 
         return userTypeMapper.userTypeToUserTypeDTO(userType);
-
     }
 }
