@@ -3,7 +3,7 @@ package com.fyaora.profilemanagement.profileservice.model.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "UserTypeEntity")
+@Entity(name = "UserType")
 @Table(name = "user_type")
 @Getter
 @Setter
