@@ -19,4 +19,12 @@ public interface UserTypeMapper {
             @Mapping(source = "enabled", target = "enabled")
     })
     UserTypeDTO userTypeToUserTypeDTO(UserType usertype);
+
+    @Mappings({
+            @Mapping(source = "id", target = "did"),
+            @Mapping(source = "type", target = "type"),
+            @Mapping(source = "description", target = "description"),
+            @Mapping(source = "enabled", target = "enabled")
+    })
+    UserType userTypeDTOToUserType(UserTypeDTO userTypeDTO);
 }
