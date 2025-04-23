@@ -87,18 +87,23 @@ class UserTypeControllerIntegrationTest {
                 )));
     }
 
-    @Test
-    @DisplayName("Integration Test: Handle null response body")
-    void testGetUserTypeByType_NullResponseBody() throws Exception {
-        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"CUSTOMER", "SERVICE_PROVIDER"})
+    @DisplayName("Test: Handle UserTypeNotFoundException for all invalid user types")
+    void testGetUserTypeByType_NotFound_Http(UserTypeEnum type) throws Exception {
+        // Arrange
+        String errorMessage = "Invalid user type provided.";
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
 
-        // Mock the service method to return null
-        when(userTypeService.getUserType(type)).thenReturn(null);
-
-        // Perform GET request and verify the result
-        mockMvc.perform(get("/api/v1/user-type/{type}", type))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(jsonPath("$.error").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/v1/user-type/" + type))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
