@@ -1,7 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
-import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
@@ -30,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
-class UserTypeControllerIntegrationTest {
+class UserTypeControllerRepositoryTest {
 
     @Mock
     private UserTypeRepository userTypeRepository;
