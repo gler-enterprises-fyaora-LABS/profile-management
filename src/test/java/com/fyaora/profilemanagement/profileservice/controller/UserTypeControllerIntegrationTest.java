@@ -1,32 +1,58 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
-import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
-import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
+import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
+import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Optional;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
-@AutoConfigureMockMvc
-@Import(GlobalExceptionHandler.class)  // Import your exception handler
+
+@ExtendWith(MockitoExtension.class)
 class UserTypeControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;  // MockMvc for sending requests to the controller
+    @Mock
+    private UserTypeRepository userTypeRepository;
 
-    @MockitoBean
-    private UserTypeService userTypeService; // Mocked service
+    @Mock
+    private UserTypeMapper userTypeMapper;
+
+    @InjectMocks
+    private UserTypeController userTypeController;
+
+    private UserTypeServiceImpl userTypeService;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        userTypeService = new UserTypeServiceImpl(userTypeRepository, userTypeMapper);
+        userTypeController = new UserTypeController(userTypeService);
+        mockMvc = MockMvcBuilders.standaloneSetup(userTypeController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Test
     @DisplayName("Integration Test: Successfully get user type for REGISTRATION_SERVICE_PROVIDER")
