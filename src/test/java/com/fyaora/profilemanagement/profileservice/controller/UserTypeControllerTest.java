@@ -83,21 +83,22 @@ class UserTypeControllerTest {
 
     @Test
     @DisplayName("Test: Handle IllegalArgumentException when user type is null")
-    void testGetUserTypeByType_NullInput() {
+    void testGetUserTypeByType_NullInput() throws Exception {
         // Arrange
-        UserTypeEnum type = null;
-
-        // Mock the service to throw the exception when null is passed
-        when(userTypeService.getUserType(type)).thenThrow(new IllegalArgumentException("User type cannot be null."));
+        String errorMessage = "User type cannot be null.";
+        // Mock the service to throw IllegalArgumentException when type is null
+        when(userTypeService.getUserType(null)).thenThrow(new IllegalArgumentException(errorMessage));
 
         // Act & Assert
-        // We expect an IllegalArgumentException to be thrown here
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            userTypeController.getUserTypeByType(type);
-        });
-
-        // Assert the exception message
-        assertEquals("User type cannot be null.", thrown.getMessage());
+        // Verify that accessing /api/v1/user-type returns MessageDTO with 'User type cannot be null.'
+        mockMvc.perform(get("/api/v1/user-type")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.error").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/v1/user-type"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 }
 
