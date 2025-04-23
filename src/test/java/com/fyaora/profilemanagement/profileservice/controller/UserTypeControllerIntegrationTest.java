@@ -1,6 +1,7 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
+import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
@@ -25,8 +26,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -54,22 +54,37 @@ class UserTypeControllerIntegrationTest {
                 .build();
     }
 
-    @Test
-    @DisplayName("Integration Test: Successfully get user type for REGISTRATION_SERVICE_PROVIDER")
-    void testGetUserTypeByType_RegistrationServiceProvider() throws Exception {
-        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
-        UserTypeDTO mockUserTypeDTO = new UserTypeDTO();
-        mockUserTypeDTO.setType(type);
-        mockUserTypeDTO.setDescription("Service Provider Type Test");
-        mockUserTypeDTO.setEnabled(true);
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER"})
+    @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER and CUSTOMER via HTTP")
+    void testGetUserTypeByType_Success_Http(UserTypeEnum type) throws Exception {
+        // Arrange
+        UserType userType = UserType.builder()
+                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .type(type)
+                .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
+                .enabled(true)
+                .build();
 
-        // Mock the service method
-        when(userTypeService.getUserType(type)).thenReturn(mockUserTypeDTO);
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setId(userType.getDid());
+        userTypeDTO.setType(type);
+        userTypeDTO.setDescription(userType.getDescription());
+        userTypeDTO.setEnabled(userType.getEnabled());
 
-        // Perform GET request and verify the result
-        mockMvc.perform(get("/api/v1/user-type/{type}", type))
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.of(userType));
+        when(userTypeMapper.userTypeToUserTypeDTO(userType)).thenReturn(userTypeDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"type\":\"SERVICE_PROVIDER\",\"description\":\"Service Provider Type Test\",\"enabled\":true}"));
+                .andExpect(content().json(String.format(
+                        "{\"id\":%d,\"type\":\"%s\",\"description\":\"%s\",\"enabled\":true}",
+                        userTypeDTO.getId(),
+                        type.toString(),
+                        userTypeDTO.getDescription()
+                )));
     }
 
     @Test
