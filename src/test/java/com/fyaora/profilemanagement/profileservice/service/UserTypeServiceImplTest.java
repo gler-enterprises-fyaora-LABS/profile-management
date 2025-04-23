@@ -1,7 +1,10 @@
 package com.fyaora.profilemanagement.profileservice.service;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
+import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,9 +25,42 @@ class UserTypeServiceImplTest {
     @Mock
     private UserTypeRepository userTypeRepository;
 
+    @Mock
+    private UserTypeMapper userTypeMapper;
 
     @InjectMocks
     private UserTypeServiceImpl userTypeService;
+
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER"})
+    @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER and CUSTOMER")
+    void testGetUserType_SuccessParameterized(UserTypeEnum type) {
+        // Arrange
+        UserType userType = UserType.builder()
+                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .type(type)
+                .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
+                .enabled(true)
+                .build();
+
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setId(userType.getDid());
+        userTypeDTO.setType(type);
+        userTypeDTO.setDescription(userType.getDescription());
+        userTypeDTO.setEnabled(userType.getEnabled());
+
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.of(userType));
+        when(userTypeMapper.userTypeToUserTypeDTO(userType)).thenReturn(userTypeDTO);
+
+        // Act
+        UserTypeDTO result = userTypeService.getUserType(type);
+
+        // Assert
+        assertEquals(userTypeDTO.getId(), result.getId());
+        assertEquals(userTypeDTO.getType(), result.getType());
+        assertEquals(userTypeDTO.getDescription(), result.getDescription());
+        assertEquals(userTypeDTO.getEnabled(), result.getEnabled());
+    }
 
     @Test
     @DisplayName("Test: Throw exception when user type is null")
