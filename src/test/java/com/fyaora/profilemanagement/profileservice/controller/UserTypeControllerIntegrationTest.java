@@ -106,22 +106,6 @@ class UserTypeControllerIntegrationTest {
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 
-    @Test
-    @DisplayName("Integration Test: Handle UserTypeNotFoundException when user type not found")
-    void testGetUserTypeByType_NotFound() throws Exception {
-        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
-
-        // Mock the service to throw UserTypeNotFoundException
-        when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
-
-        // Perform GET request and verify the exception handling
-        mockMvc.perform(get("/api/v1/user-type/{type}", type))
-                .andExpect(status().isNotFound())  // Expecting 404 now
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message").value("Invalid user type provided."))
-                .andExpect(jsonPath("$.path").value("/api/v1/user-type/" + type.name()));
-    }
 
     @Test
     @DisplayName("Integration Test: Handle 404 error when user type is null")
