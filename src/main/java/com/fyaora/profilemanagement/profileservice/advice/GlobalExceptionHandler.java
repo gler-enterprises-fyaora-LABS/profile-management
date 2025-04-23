@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserTypeNotFoundException.class)
-    public ResponseEntity<?> handleUserTypeNotFoundException(Exception ex, WebRequest webRequest) {
+    public ResponseEntity<MessageDTO> handleUserTypeNotFoundException(UserTypeNotFoundException ex, WebRequest webRequest) {
         MessageDTO messageDTO = getMessageDTO(HttpStatus.NOT_FOUND, ex.getMessage(), webRequest);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(messageDTO);
     }
