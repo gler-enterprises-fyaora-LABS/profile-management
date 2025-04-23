@@ -1,8 +1,10 @@
 package com.fyaora.profilemanagement.profileservice.controller;
+import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +12,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class UserTypeControllerTest {
@@ -24,6 +32,15 @@ class UserTypeControllerTest {
 
     @InjectMocks
     private UserTypeController userTypeController;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(userTypeController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Test
     @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER")
@@ -47,21 +64,21 @@ class UserTypeControllerTest {
 
     @Test
     @DisplayName("Test: Handle UserTypeNotFoundException when user type not found")
-    void testGetUserTypeByType_NotFound() {
+    void testGetUserTypeByType_NotFound() throws Exception {
         // Arrange
         UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
-
-        // Mock the service to throw the exception
-        when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException("Invalid user type provided."));
+        String errorMessage = "Invalid user type provided.";
+        when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException(errorMessage));
 
         // Act & Assert
-        // We expect an exception to be thrown here, which will be caught by the global exception handler
-        UserTypeNotFoundException thrown = assertThrows(UserTypeNotFoundException.class, () -> {
-            userTypeController.getUserTypeByType(type);
-        });
-
-        // Assert the exception message
-        assertEquals("Invalid user type provided.", thrown.getMessage());
+        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value(errorMessage))
+                .andExpect(jsonPath("$.path").value("/api/v1/user-type/" + type))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
