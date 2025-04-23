@@ -106,16 +106,16 @@ class UserTypeControllerIntegrationTest {
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 
-
     @Test
-    @DisplayName("Integration Test: Handle 404 error when user type is null")
+    @DisplayName("Integration Test: Handle 400 error when user type is missing (null)")
     void testGetUserTypeByType_NullInput() throws Exception {
-        String invalidType = null;
-
-        // Perform GET request with invalid (null) type
-        mockMvc.perform(get("/api/v1/user-type/{type}", invalidType))  // type is null. i.e: When accessing /api/v1/user-type/, expect a 404 not found.
-                .andExpect(status().isNotFound())  // Expecting 404 status from global exception handler
-                .andExpect(content().string(""));  //
+        mockMvc.perform(get("/api/v1/user-type"))  // Accessing without a type param
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.error").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value("User type cannot be null."))
+                .andExpect(jsonPath("$.path").value("/api/v1/user-type"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
 }
