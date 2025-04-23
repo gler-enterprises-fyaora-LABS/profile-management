@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,24 +44,27 @@ class UserTypeControllerTest {
                 .build();
     }
 
-    @Test
-    @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER")
-    void testGetUserTypeByType_RegistrationServiceProvider() {
-        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER"})
+    @DisplayName("Test: Successfully get user type for SERVICE_PROVIDER and CUSTOMER via HTTP")
+    void testGetUserTypeByType_Success_Http(UserTypeEnum type) throws Exception {
+        // Arrange
         UserTypeDTO mockUserTypeDTO = new UserTypeDTO();
+        mockUserTypeDTO.setId(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2);
         mockUserTypeDTO.setType(type);
-        mockUserTypeDTO.setDescription("Service Provider Type Test");
+        mockUserTypeDTO.setDescription(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Registration Service Provider Type Test");
         mockUserTypeDTO.setEnabled(true);
 
-        // Mock the service method
         when(userTypeService.getUserType(type)).thenReturn(mockUserTypeDTO);
 
-        // Call the controller method
-        ResponseEntity<?> response = userTypeController.getUserTypeByType(type);
-
-        // Verify the response
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(mockUserTypeDTO, response.getBody());
+        // Act & Assert
+        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(mockUserTypeDTO.getId()))
+                .andExpect(jsonPath("$.type").value(type.toString()))
+                .andExpect(jsonPath("$.description").value(mockUserTypeDTO.getDescription()))
+                .andExpect(jsonPath("$.enabled").value(true));
     }
 
     @Test
