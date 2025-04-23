@@ -62,6 +62,21 @@ class UserTypeServiceImplTest {
         assertEquals(userTypeDTO.getEnabled(), result.getEnabled());
     }
 
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER"})
+    @DisplayName("Test: Throw UserTypeNotFoundException when user type is not found")
+    void testGetUserType_NotFoundParameterized(UserTypeEnum type) {
+        // Arrange
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        UserTypeNotFoundException exception = assertThrows(
+                UserTypeNotFoundException.class,
+                () -> userTypeService.getUserType(type)
+        );
+        assertEquals("Invalid user type provided.", exception.getMessage());
+    }
+
     @Test
     @DisplayName("Test: Throw exception when user type is null")
     void testFindByType_NullInput() {
