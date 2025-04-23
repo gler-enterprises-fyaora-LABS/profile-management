@@ -25,4 +25,10 @@ public class UserTypeController {
         UserTypeDTO userTypeDTO = userTypeService.getUserType(type);
         return ResponseEntity.ok(userTypeDTO);
     }
+
+    @GetMapping
+    public ResponseEntity<?> getUserTypeByType() {
+        UserTypeDTO userTypeDTO = userTypeService.getUserType(null);
+        return ResponseEntity.ok(userTypeDTO);
+    }
 }
