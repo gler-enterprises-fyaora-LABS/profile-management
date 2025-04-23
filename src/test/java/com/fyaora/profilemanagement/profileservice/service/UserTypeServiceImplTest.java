@@ -77,6 +77,28 @@ class UserTypeServiceImplTest {
         assertEquals("Invalid user type provided.", exception.getMessage());
     }
 
+    @ParameterizedTest
+    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER"})
+    @DisplayName("Test: Throw UserTypeNotFoundException when user type is disabled")
+    void testGetUserType_DisabledParameterized(UserTypeEnum type) {
+        // Arrange
+        UserType userType = UserType.builder()
+                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .type(type)
+                .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
+                .enabled(false) // Explicitly disabled
+                .build();
+
+        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        UserTypeNotFoundException exception = assertThrows(
+                UserTypeNotFoundException.class,
+                () -> userTypeService.getUserType(type)
+        );
+        assertEquals("Invalid user type provided.", exception.getMessage());
+    }
+
     @Test
     @DisplayName("Test: Throw exception when user type is null")
     void testFindByType_NullInput() {
