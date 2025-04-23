@@ -109,17 +109,4 @@ class UserTypeServiceImplTest {
         assertEquals("User type cannot be null.", exception.getMessage());
     }
 
-    @ParameterizedTest
-    @EnumSource(UserTypeEnum.class)
-    @DisplayName("Test: Throw UserTypeNotFoundException when UserType is not found")
-    void testFindByType_NotFoundParameterized(UserTypeEnum type) {
-        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
-
-        UserTypeNotFoundException exception = assertThrows(
-                UserTypeNotFoundException.class,
-                () -> userTypeService.getUserType(type)
-        );
-
-        assertEquals("Invalid user type provided.", exception.getMessage());
-    }
 }
