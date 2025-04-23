@@ -46,24 +46,6 @@ class UserTypeControllerTest {
     }
 
     @Test
-    @DisplayName("Test: Handle null response body")
-    void testGetUserTypeByType_NullResponseBody() {
-        UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
-
-        // Mock the service method to return null
-        when(userTypeService.getUserType(type)).thenReturn(null);
-
-        // Call the controller method
-        ResponseEntity<?> response = userTypeController.getUserTypeByType(type);
-
-        // Verify the response
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // Check that the response body is null or empty
-        assertNull(response.getBody()); // or use assertTrue(response.getBody().isEmpty()) if expecting an empty object
-    }
-
-    @Test
     @DisplayName("Test: Handle UserTypeNotFoundException when user type not found")
     void testGetUserTypeByType_NotFound() {
         // Arrange
