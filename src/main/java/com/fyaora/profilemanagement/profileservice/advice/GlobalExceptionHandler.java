@@ -17,6 +17,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(messageDTO);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<MessageDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest webRequest) {
+        MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage(), webRequest);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
+    }
+
     private MessageDTO getMessageDTO(HttpStatus status, String message, WebRequest webRequest) {
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setTimestamp(LocalDateTime.now());
