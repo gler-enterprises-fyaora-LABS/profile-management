@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -15,6 +17,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<MessageDTO> handleUserTypeNotFoundException(UserTypeNotFoundException ex, WebRequest webRequest) {
         MessageDTO messageDTO = getMessageDTO(HttpStatus.NOT_FOUND, ex.getMessage(), webRequest);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(messageDTO);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<MessageDTO> handleEnumConversionException(
+            MethodArgumentTypeMismatchException ex, WebRequest webRequest) {
+
+        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
+            String msg = "Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS";
+            MessageDTO messageDTO = getMessageDTO(HttpStatus.NOT_FOUND, msg, webRequest);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(messageDTO);
+        }
+
+        MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, "Bad request", webRequest);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
