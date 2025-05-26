@@ -1,27 +1,29 @@
 package com.fyaora.profilemanagement.profileservice.controller;
+
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,14 +33,15 @@ class UserTypeControllerTest {
     @Mock
     private UserTypeService userTypeService;
 
-
     @InjectMocks
     private UserTypeController userTypeController;
 
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders.standaloneSetup(userTypeController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
@@ -52,13 +55,13 @@ class UserTypeControllerTest {
         UserTypeDTO mockUserTypeDTO = new UserTypeDTO();
         mockUserTypeDTO.setId(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2);
         mockUserTypeDTO.setType(type);
-        mockUserTypeDTO.setDescription(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Registration Service Provider Type Test");
+        mockUserTypeDTO.setDescription(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test");
         mockUserTypeDTO.setEnabled(true);
 
         when(userTypeService.getUserType(type)).thenReturn(mockUserTypeDTO);
 
         // Act & Assert
-        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+        mockMvc.perform(get("/api/v1/account-type/{type}", type)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mockUserTypeDTO.getId()))
@@ -72,18 +75,14 @@ class UserTypeControllerTest {
     void testGetUserTypeByType_NotFound() throws Exception {
         // Arrange
         UserTypeEnum type = UserTypeEnum.SERVICE_PROVIDER;
-        String errorMessage = "Invalid user type provided.";
+        String errorMessage = "Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS";
         when(userTypeService.getUserType(type)).thenThrow(new UserTypeNotFoundException(errorMessage));
 
         // Act & Assert
-        mockMvc.perform(get("/api/v1/user-type/{type}", type)
+        mockMvc.perform(get("/api/v1/account-type/{type}", type)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/v1/user-type/" + type))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.message").value(errorMessage));
     }
 
     @Test
@@ -91,19 +90,93 @@ class UserTypeControllerTest {
     void testGetUserTypeByType_NullInput() throws Exception {
         // Arrange
         String errorMessage = "User type cannot be null.";
-        // Mock the service to throw IllegalArgumentException when type is null
         when(userTypeService.getUserType(null)).thenThrow(new IllegalArgumentException(errorMessage));
 
         // Act & Assert
-        // Verify that accessing /api/v1/user-type returns MessageDTO with 'User type cannot be null.'
-        mockMvc.perform(get("/api/v1/user-type")
+        mockMvc.perform(get("/api/v1/account-type")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.error").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
-                .andExpect(jsonPath("$.message").value(errorMessage))
-                .andExpect(jsonPath("$.path").value("/api/v1/user-type"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Test: Successfully add a new user type via HTTP")
+    void testAddUserType_Success() throws Exception {
+        // Arrange
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setId(1);
+        userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
+        userTypeDTO.setDescription("Individual User Type");
+        userTypeDTO.setEnabled(true);
+
+        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, "CREATED");
+
+        when(userTypeService.addUserType(any(UserTypeDTO.class))).thenReturn(responseDTO);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/account-type")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userTypeDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDTO.getId()))
+                .andExpect(jsonPath("$.type").value(responseDTO.getType().toString()))
+                .andExpect(jsonPath("$.status").value(responseDTO.getStatus()));
+    }
+
+    @Test
+    @DisplayName("Test: Handle IllegalArgumentException when user type DTO is null")
+    void testAddUserType_NullInput() throws Exception {
+        // Arrange
+        String errorMessage = "Bad request";
+        // No stubbing needed as JSON deserialization will fail
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/account-type")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("null"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Test: Handle IllegalArgumentException when user type enum is null")
+    void testAddUserType_NullTypeEnum() throws Exception {
+        // Arrange
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setId(1);
+        userTypeDTO.setType(null);
+        userTypeDTO.setDescription("Invalid Type");
+        userTypeDTO.setEnabled(true);
+
+        String errorMessage = "User type and type enum cannot be null.";
+        when(userTypeService.addUserType(any(UserTypeDTO.class))).thenThrow(new IllegalArgumentException(errorMessage));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/account-type")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userTypeDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Test: Handle IllegalArgumentException when user type already exists")
+    void testAddUserType_AlreadyExists() throws Exception {
+        // Arrange
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setId(1);
+        userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
+        userTypeDTO.setDescription("Individual User Type");
+        userTypeDTO.setEnabled(true);
+
+        String errorMessage = "The type already exists";
+        when(userTypeService.addUserType(any(UserTypeDTO.class))).thenThrow(new IllegalArgumentException(errorMessage));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/account-type")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userTypeDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(errorMessage));
     }
 }
-
