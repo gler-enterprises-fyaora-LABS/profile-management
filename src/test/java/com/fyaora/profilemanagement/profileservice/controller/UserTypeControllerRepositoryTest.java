@@ -3,7 +3,7 @@ package com.fyaora.profilemanagement.profileservice.controller;
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;

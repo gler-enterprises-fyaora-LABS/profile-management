@@ -4,7 +4,7 @@ import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

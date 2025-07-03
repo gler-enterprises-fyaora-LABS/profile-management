@@ -1,5 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.model.db.entity;
 
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
