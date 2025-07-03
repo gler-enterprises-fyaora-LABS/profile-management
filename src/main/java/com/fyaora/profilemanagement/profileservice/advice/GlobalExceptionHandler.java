@@ -22,20 +22,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(messageDTO);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<MessageDTO> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
-        String message = "Bad request";
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<MessageDTO> handleInvalidFormatException(
+            InvalidFormatException ex, WebRequest request) {
 
-        // If the root cause is enum conversion failure
-        if (ex.getCause() instanceof InvalidFormatException invalidEx &&
-                invalidEx.getTargetType() != null &&
-                invalidEx.getTargetType().isEnum()) {
+        String message;
+        if (ex.getTargetType() != null && ex.getTargetType().isEnum()) {
             message = "Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS";
+        } else {
+            message = "Invalid format in request payload.";
         }
 
         MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, message, request);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
     }
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<MessageDTO> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
+        String message = "Bad request";
+
+        MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, message, request);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
+    }
+
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<MessageDTO> handleEnumConversionException(
