@@ -3,6 +3,7 @@ package com.fyaora.profilemanagement.profileservice.service;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeStatus;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
@@ -178,7 +179,7 @@ class UserTypeServiceImplTest {
                 .enabled(true)
                 .build();
 
-        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, "CREATED");
+        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, UserTypeStatus.CREATED);
 
         when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.empty());
         when(userTypeMapper.userTypeDTOToUserType(userTypeDTO)).thenReturn(userType);
@@ -272,7 +273,7 @@ class UserTypeServiceImplTest {
                 .enabled(true)
                 .build();
 
-        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, "CREATED");
+        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, UserTypeStatus.CREATED);
 
         when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.empty());
         when(userTypeMapper.userTypeDTOToUserType(userTypeDTO)).thenReturn(userType);

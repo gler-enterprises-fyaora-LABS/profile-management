@@ -3,6 +3,7 @@ package com.fyaora.profilemanagement.profileservice.service.impl;
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeStatus;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
@@ -57,6 +58,6 @@ public class UserTypeServiceImpl implements UserTypeService {
         UserType savedUserType = userTypeRepository.save(userType);
 
         // Create response DTO
-        return new UserTypeResponseDTO(savedUserType.getDid(), savedUserType.getType(), "CREATED");
+        return new UserTypeResponseDTO(savedUserType.getDid(), savedUserType.getType(), UserTypeStatus.CREATED);
     }
 }

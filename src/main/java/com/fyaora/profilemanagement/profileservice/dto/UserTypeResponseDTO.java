@@ -18,5 +18,5 @@ public class UserTypeResponseDTO {
     private UserTypeEnum type;
 
     @JsonProperty("status")
-    private String status;
+    private UserTypeStatus status;
 }

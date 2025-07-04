@@ -5,6 +5,7 @@ import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundExcept
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeStatus;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +110,7 @@ class UserTypeControllerTest {
         userTypeDTO.setDescription("Individual User Type");
         userTypeDTO.setEnabled(true);
 
-        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, "CREATED");
+        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, UserTypeStatus.CREATED);
 
         when(userTypeService.addUserType(any(UserTypeDTO.class))).thenReturn(responseDTO);
 
@@ -120,7 +121,7 @@ class UserTypeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDTO.getId()))
                 .andExpect(jsonPath("$.type").value(responseDTO.getType().toString()))
-                .andExpect(jsonPath("$.status").value(responseDTO.getStatus()));
+                .andExpect(jsonPath("$.status").value(responseDTO.getStatus().toString()));
     }
 
     @Test
