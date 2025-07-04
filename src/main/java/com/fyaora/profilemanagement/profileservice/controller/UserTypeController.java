@@ -24,12 +24,6 @@ public class UserTypeController {
         return ResponseEntity.ok(userTypeDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getUserTypeByType() {
-        UserTypeDTO userTypeDTO = userTypeService.getUserType(null);
-        return ResponseEntity.ok(userTypeDTO);
-    }
-
     @PostMapping
     public ResponseEntity<?> addUserType(@RequestBody UserTypeDTO userTypeDTO) {
         UserTypeResponseDTO responseDTO = userTypeService.addUserType(userTypeDTO);
