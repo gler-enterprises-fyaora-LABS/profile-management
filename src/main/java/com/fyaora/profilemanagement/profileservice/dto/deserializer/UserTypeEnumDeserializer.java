@@ -22,10 +22,8 @@ public class UserTypeEnumDeserializer extends JsonDeserializer<UserTypeEnum> {
     public UserTypeEnum deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         String input = p.getText();
 
-        // Normalize input: uppercase, remove spaces, dashes, underscores
-        String normalized = input.trim()
-                .toUpperCase()
-                .replaceAll("[ _-]", "");
+        // Normalise input: uppercase, remove spaces
+        String normalized = input.trim().toUpperCase();
 
         switch (normalized) {
             case "BUSINESS":
