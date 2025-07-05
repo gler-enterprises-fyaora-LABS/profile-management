@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,7 +41,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleHttpMessageNotReadable(Exception ex, WebRequest webRequest) {
+    public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest webRequest) {
+
+        // Spring wraps exceptions thrown in a HttpMessageNotReadableException
+        // Jackson throws InvalidEnumValueException which turns into HttpMessageNotReadableException
+        Throwable rootCause = getRootCause(ex);
+        if (rootCause instanceof InvalidEnumValueException) {
+            return getMessageDTO(HttpStatus.BAD_REQUEST, rootCause.getMessage(), webRequest);
+        }
         return getMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage(), webRequest);
     }
 
