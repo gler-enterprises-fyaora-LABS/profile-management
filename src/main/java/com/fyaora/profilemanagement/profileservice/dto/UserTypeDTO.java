@@ -25,6 +25,5 @@ public class UserTypeDTO {
     private String description;
 
     @JsonProperty("enabled")
-    @NotNull(message = "user.enabled.not.null")
     private boolean enabled;
 }
