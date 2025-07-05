@@ -17,11 +17,11 @@ public class UserTypeDTO {
     private Integer id;
 
     @JsonProperty("type")
-    @NotNull(message = "user.type.not.null")
+    @NotNull(message = "{user.type.not.null}")
     private UserTypeEnum type;
 
     @JsonProperty("description")
-    @NotBlank(message = "user.description.not.blank")
+    @NotBlank(message = "{user.description.not.blank}")
     private String description;
 
     @JsonProperty("enabled")
