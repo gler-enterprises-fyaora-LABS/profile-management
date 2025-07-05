@@ -10,6 +10,8 @@ import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,42 +19,30 @@ public class UserTypeServiceImpl implements UserTypeService {
 
     private final UserTypeRepository userTypeRepository;
     private final UserTypeMapper userTypeMapper;
+    private final MessageSource messageSource;
 
     @Autowired
-    public UserTypeServiceImpl(UserTypeRepository userTypeRepository, UserTypeMapper userTypeMapper) {
+    public UserTypeServiceImpl(UserTypeRepository userTypeRepository, UserTypeMapper userTypeMapper, MessageSource messageSource) {
         this.userTypeRepository = userTypeRepository;
         this.userTypeMapper = userTypeMapper;
+        this.messageSource = messageSource;
     }
 
-
     public UserTypeDTO getUserType(UserTypeEnum type) {
-        if (type == null) {
-            throw new IllegalArgumentException("User type cannot be null.");
-        }
-        UserType userType = userTypeRepository.findByTypeAndEnabled(type, Boolean.TRUE)
-                .orElseThrow(() -> new UserTypeNotFoundException("Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS"));
+        UserType userType = userTypeRepository.findByTypeAndEnabled(type, true)
+                .orElseThrow(() -> new UserTypeNotFoundException(messageSource.getMessage("invalid.enum.type", null, LocaleContextHolder.getLocale())));
 
         return userTypeMapper.userTypeToUserTypeDTO(userType);
     }
 
-
     public UserTypeResponseDTO addUserType(UserTypeDTO userTypeDTO) {
-        // Validate input
-        if (userTypeDTO == null || userTypeDTO.getType() == null) {
-            throw new IllegalArgumentException("User type and type enum cannot be null.");
-        }
-
         // Check if type already exists
         if (userTypeRepository.findByType(userTypeDTO.getType()).isPresent()) {
-            throw new IllegalArgumentException("The type already exists");
+            throw new IllegalArgumentException(messageSource.getMessage("user.type.exists", null, LocaleContextHolder.getLocale()));
         }
 
         // Convert DTO to entity
         UserType userType = userTypeMapper.userTypeDTOToUserType(userTypeDTO);
-        // Ensure enabled is set to true if not provided
-        if (userType.getEnabled() == null) {
-            userType.setEnabled(true);
-        }
 
         // Save to repository
         UserType savedUserType = userTypeRepository.save(userType);
