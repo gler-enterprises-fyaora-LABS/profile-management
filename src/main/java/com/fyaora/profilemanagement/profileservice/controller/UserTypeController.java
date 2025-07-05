@@ -5,6 +5,7 @@ import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.service.UserTypeService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class UserTypeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addUserType(@RequestBody UserTypeDTO userTypeDTO) {
+    public ResponseEntity<?> addUserType(@RequestBody @Valid UserTypeDTO userTypeDTO) {
         UserTypeResponseDTO responseDTO = userTypeService.addUserType(userTypeDTO);
         return ResponseEntity.ok(responseDTO);
     }
