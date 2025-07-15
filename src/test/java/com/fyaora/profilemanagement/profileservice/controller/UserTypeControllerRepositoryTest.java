@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,6 +38,9 @@ class UserTypeControllerRepositoryTest {
     @Mock
     private UserTypeMapper userTypeMapper;
 
+    @Mock
+    private MessageSource messageSource;
+
     @InjectMocks
     private UserTypeController userTypeController;
 
@@ -49,7 +53,7 @@ class UserTypeControllerRepositoryTest {
         userTypeService = new UserTypeServiceImpl(userTypeRepository, userTypeMapper);
         userTypeController = new UserTypeController(userTypeService);
         mockMvc = MockMvcBuilders.standaloneSetup(userTypeController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(messageSource))
                 .build();
     }
 
@@ -59,14 +63,14 @@ class UserTypeControllerRepositoryTest {
     void testGetUserTypeByType_Success_Http(UserTypeEnum type) throws Exception {
         // Arrange
         UserType userType = UserType.builder()
-                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .id(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
                 .type(type)
                 .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
                 .enabled(true)
                 .build();
 
         UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(userType.getDid());
+        userTypeDTO.setId(userType.getId());
         userTypeDTO.setType(type);
         userTypeDTO.setDescription(userType.getDescription());
         userTypeDTO.setEnabled(userType.getEnabled());
