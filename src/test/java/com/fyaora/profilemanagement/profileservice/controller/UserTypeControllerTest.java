@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ class UserTypeControllerTest {
     @Mock
     private UserTypeService userTypeService;
 
+    @Mock
+    private MessageSource messageSource;
 
     @InjectMocks
     private UserTypeController userTypeController;
@@ -40,7 +43,7 @@ class UserTypeControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(userTypeController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(messageSource))
                 .build();
     }
 

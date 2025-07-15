@@ -37,14 +37,14 @@ class UserTypeServiceImplTest {
     void testGetUserType_SuccessParameterized(UserTypeEnum type) {
         // Arrange
         UserType userType = UserType.builder()
-                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .id(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
                 .type(type)
                 .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
                 .enabled(true)
                 .build();
 
         UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(userType.getDid());
+        userTypeDTO.setId(userType.getId());
         userTypeDTO.setType(type);
         userTypeDTO.setDescription(userType.getDescription());
         userTypeDTO.setEnabled(userType.getEnabled());
@@ -83,7 +83,7 @@ class UserTypeServiceImplTest {
     void testGetUserType_DisabledParameterized(UserTypeEnum type) {
         // Arrange
         UserType userType = UserType.builder()
-                .did(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
+                .id(type == UserTypeEnum.SERVICE_PROVIDER ? 1 : 2)
                 .type(type)
                 .description(type == UserTypeEnum.SERVICE_PROVIDER ? "Service Provider Type Test" : "Customer Type Test")
                 .enabled(false) // Explicitly disabled

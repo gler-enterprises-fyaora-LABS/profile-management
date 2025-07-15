@@ -14,7 +14,7 @@ public class UserType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer did; // Primary Key
+    private Integer id; // Primary Key
 
     @Enumerated(EnumType.STRING) // Store Enum as a String in the DB
     @Column(nullable = false)

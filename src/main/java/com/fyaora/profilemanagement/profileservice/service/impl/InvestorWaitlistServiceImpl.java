@@ -1,0 +1,50 @@
+package com.fyaora.profilemanagement.profileservice.service.impl;
+
+import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
+import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
+import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
+import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistRepository;
+import com.fyaora.profilemanagement.profileservice.model.mapping.InvestorWaitlistMapper;
+import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+@Slf4j
+public class InvestorWaitlistServiceImpl implements WaitlistService {
+    private final WaitlistRepository waitlistRepository;
+    private final InvestorWaitlistMapper investorWaitlistMapper;
+
+    @Autowired
+    public InvestorWaitlistServiceImpl(WaitlistRepository repository, InvestorWaitlistMapper mapper) {
+        this.waitlistRepository = repository;
+        this.investorWaitlistMapper = mapper;
+    }
+
+    public WaitlistProcess getProcess() {
+        return WaitlistProcess.INVESTOR;
+    }
+
+    @Override
+    public void joinWaitlist(WaitlistRequestDTO requestDTO) {
+        if (requestDTO instanceof WaitlistInvestorRequestDTO investorRequestDTO) {
+            Waitlist waitlist = investorWaitlistMapper.toEntity(investorRequestDTO);
+            waitlist.setUserType(UserTypeEnum.INVESTOR);
+            waitlist.setEnabled(Boolean.TRUE);
+            waitlistRepository.save(waitlist);
+        }
+    }
+
+    @Override
+    public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
+        List<Waitlist> list = waitlistRepository.
+                findByUserTypeAndEmailOrTelnum(UserTypeEnum.INVESTOR, searchDTO.email(), searchDTO.telnum());
+        List<WaitlistInvestorRequestDTO> dtoList = investorWaitlistMapper.toDtoList(list);
+        return (List<T>) dtoList;
+    }
+}
