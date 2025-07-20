@@ -1,5 +1,9 @@
 package com.fyaora.profilemanagement.profileservice.model.db.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fyaora.profilemanagement.profileservice.dto.VendorTypeEnumDeserializer;
+
+@JsonDeserialize(using = VendorTypeEnumDeserializer.class)
 public enum VendorTypeEnum {
     INDEPENDENT(1),
     COMPANY(2);

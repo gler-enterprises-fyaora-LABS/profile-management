@@ -1,5 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
+import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
@@ -11,19 +12,26 @@ import com.fyaora.profilemanagement.profileservice.model.mapping.InvestorWaitlis
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 @Slf4j
 public class InvestorWaitlistServiceImpl implements WaitlistService {
+
     private final WaitlistRepository waitlistRepository;
     private final InvestorWaitlistMapper investorWaitlistMapper;
+    private final MessageSource messageSource;
 
     @Autowired
-    public InvestorWaitlistServiceImpl(WaitlistRepository repository, InvestorWaitlistMapper mapper) {
+    public InvestorWaitlistServiceImpl(WaitlistRepository repository,
+                                       InvestorWaitlistMapper mapper,
+                                       MessageSource messageSource) {
         this.waitlistRepository = repository;
         this.investorWaitlistMapper = mapper;
+        this.messageSource = messageSource;
     }
 
     public WaitlistProcess getProcess() {
@@ -44,6 +52,12 @@ public class InvestorWaitlistServiceImpl implements WaitlistService {
     public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
         List<Waitlist> list = waitlistRepository.
                 findByUserTypeAndEmailOrTelnum(UserTypeEnum.INVESTOR, searchDTO.email(), searchDTO.telnum());
+
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    messageSource.getMessage("investor.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
+        }
+
         List<WaitlistInvestorRequestDTO> dtoList = investorWaitlistMapper.toDtoList(list);
         return (List<T>) dtoList;
     }
