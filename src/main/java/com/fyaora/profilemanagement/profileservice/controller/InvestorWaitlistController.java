@@ -1,10 +1,15 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
+import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -31,6 +36,13 @@ public class InvestorWaitlistController {
         this.waitlistServiceFactory = factory;
     }
 
+    @Operation(
+            summary = "Add investor waitlist request",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successfully added investor waitlist request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WaitlistInvestorRequestDTO.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
+            }
+    )
     @PostMapping("/join")
     public ResponseEntity<?> joinWaitlist(@Valid @RequestBody WaitlistInvestorRequestDTO investorRequestDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
@@ -39,6 +51,13 @@ public class InvestorWaitlistController {
                 messageSource.getMessage("investor.join.waitlist.success", null, LocaleContextHolder.getLocale()));
     }
 
+    @Operation(
+            summary = "Search investor waitlist requests",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Search investor waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WaitlistInvestorRequestDTO.class))),
+                    @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
+            }
+    )
     @GetMapping("/search")
     public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);

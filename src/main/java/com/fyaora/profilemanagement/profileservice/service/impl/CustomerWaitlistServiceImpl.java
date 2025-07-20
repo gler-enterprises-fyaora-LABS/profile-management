@@ -1,5 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
+import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistCustomerRequestDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
@@ -11,6 +12,8 @@ import com.fyaora.profilemanagement.profileservice.model.mapping.CustomerWaitlis
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +24,15 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
 
     private final WaitlistRepository waitlistRepository;
     private final CustomerWaitlistMapper customerWaitlistMapper;
+    private final MessageSource messageSource;
 
     @Autowired
-    public CustomerWaitlistServiceImpl(WaitlistRepository repository, CustomerWaitlistMapper mapper) {
+    public CustomerWaitlistServiceImpl(WaitlistRepository repository,
+                                       CustomerWaitlistMapper mapper,
+                                       MessageSource messageSource) {
         this.waitlistRepository = repository;
         this.customerWaitlistMapper = mapper;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -47,6 +54,12 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
     public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
         List<Waitlist> list = waitlistRepository
                 .findByUserTypeAndEmailOrTelnum(UserTypeEnum.CUSTOMER, searchDTO.email(), searchDTO.telnum());
+
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    messageSource.getMessage("customer.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
+        }
+
         List<WaitlistCustomerRequestDTO> requests = customerWaitlistMapper.toDtoList(list);
         return (List<T>) requests;
     }
