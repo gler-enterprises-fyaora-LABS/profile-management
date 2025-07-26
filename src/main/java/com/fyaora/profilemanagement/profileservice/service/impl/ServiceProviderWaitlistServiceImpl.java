@@ -14,16 +14,26 @@ import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistR
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistServiceRepository;
 import com.fyaora.profilemanagement.profileservice.model.mapping.ServiceProviderWaitlistMapper;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
+
+    @Value("${pagination.page.size}")
+    private int pageSize;
 
     private final WaitlistRepository waitlistRepository;
     private final ServicesOfferedRepository servicesOfferedRepository;
@@ -58,6 +68,18 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
             waitlist.setEnabled(Boolean.TRUE);
 
             List<ServiceOffered> serviceOffereds = servicesOfferedRepository.findAllById(serviceProviderRequestDTO.servicesOffered());
+            Set<Integer> foundServices = serviceOffereds.stream().map(ServiceOffered::getId).collect(Collectors.toSet());
+
+            List<Integer> filteredNonServices =
+                    serviceProviderRequestDTO.servicesOffered().stream()
+                            .filter(id -> !foundServices.contains(id))
+                            .collect(Collectors.toList());
+
+            if (!filteredNonServices.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        messageSource.getMessage("service.offered.not.found", new Object[]{filteredNonServices}, LocaleContextHolder.getLocale()));
+            }
+
             List<WaitlistServiceOffered> waitlistServiceOffereds = new ArrayList<>();
 
             serviceOffereds.stream().forEach(s -> {
@@ -77,15 +99,24 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
 
     @Override
     public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
-        List<Waitlist> list = waitlistRepository.
-                findForServiceProviderByUserTypeAndEmailOrTelnum(UserTypeEnum.SERVICE_PROVIDER, searchDTO.email(), searchDTO.telnum());
+        int page = searchDTO.page() == null ? 0 : searchDTO.page();
+        int size = pageSize;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Waitlist> list;
+        if (StringUtils.isBlank(searchDTO.email()) && StringUtils.isBlank(searchDTO.telnum())) {
+            list = waitlistRepository.findByUserType(UserTypeEnum.SERVICE_PROVIDER, pageable);
+        } else {
+            list = waitlistRepository.
+                    findByUserTypeAndEmailOrTelnum(UserTypeEnum.SERVICE_PROVIDER, searchDTO.email(), searchDTO.telnum(), pageable);
+        }
 
         if (list.isEmpty()) {
             throw new ResourceNotFoundException(
                     messageSource.getMessage("service.provider.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
         }
 
-        List<WaitlistServiceProviderRequestDTO> dtoList = serviceProviderWaitlistMapper.toDtoList(list);
+        List<WaitlistServiceProviderRequestDTO> dtoList = serviceProviderWaitlistMapper.toDtoList(list.getContent());
         return (List<T>) dtoList;
     }
 }

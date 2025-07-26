@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/waitlist/investor")
@@ -47,8 +48,9 @@ public class InvestorWaitlistController {
     public ResponseEntity<?> joinWaitlist(@Valid @RequestBody WaitlistInvestorRequestDTO investorRequestDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
         service.joinWaitlist(investorRequestDTO);
-        return ResponseEntity.ok(
-                messageSource.getMessage("investor.join.waitlist.success", null, LocaleContextHolder.getLocale()));
+        String message = messageSource.getMessage("investor.join.waitlist.success", null, LocaleContextHolder.getLocale());
+        Map<String, String> response = Map.of("message", message);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -58,10 +60,11 @@ public class InvestorWaitlistController {
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
         List<WaitlistInvestorRequestDTO> list = service.searchWaitlist(searchDTO);
-        return ResponseEntity.ok(list);
+        Map<String, Object> response = Map.of("results", list);
+        return ResponseEntity.ok(response);
     }
 }

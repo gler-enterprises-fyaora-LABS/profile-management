@@ -15,12 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/waitlist/customer")
@@ -47,8 +47,9 @@ public class CustomerWaitlistController {
     public ResponseEntity<?> joinWaitList(@Valid @RequestBody WaitlistCustomerRequestDTO waitListRequestDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.CUSTOMER);
         service.joinWaitlist(waitListRequestDTO);
-        return ResponseEntity.ok(
-                messageSource.getMessage("customer.join.waitlist.success", null, LocaleContextHolder.getLocale()));
+        String message = messageSource.getMessage("customer.join.waitlist.success", null, LocaleContextHolder.getLocale());
+        Map<String, String> response = Map.of("message", message);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -58,10 +59,11 @@ public class CustomerWaitlistController {
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.CUSTOMER);
         List<WaitlistCustomerRequestDTO> list = service.searchWaitlist(searchDTO);
-        return ResponseEntity.ok(list);
+        Map<String, Object> response = Map.of("results", list);
+        return ResponseEntity.ok(response);
     }
 }
