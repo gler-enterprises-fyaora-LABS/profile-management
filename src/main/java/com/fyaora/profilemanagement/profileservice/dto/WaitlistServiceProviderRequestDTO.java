@@ -6,21 +6,26 @@ import com.fyaora.profilemanagement.profileservice.model.db.entity.VendorTypeEnu
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
+
 import java.util.List;
 
+@Builder(toBuilder = true)
 public record WaitlistServiceProviderRequestDTO(
         @NotEmpty(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
         @JsonProperty("email")
         String email,
 
-        @NotEmpty(message = "{telnum.notempty}")
-        @NotNull(message = "{telnum.notempty}")
         @JsonProperty("telnum")
+        @Pattern(
+                regexp = "^\\+?[0-9\\s\\-()]{7,20}$",
+                message = "{telnum.invalid.service.provider}"
+        )
         String telnum,
 
         @NotEmpty(message = "{postcode.notempty}")
-        @NotNull(message = "{postcode.notempty}")
         @JsonProperty("postcode")
         String postcode,
 

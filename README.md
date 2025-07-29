@@ -1,35 +1,28 @@
 # profile-management
 
-### UserType Service
+The Profile Management module provides the following features:
 
-The UserType Service manages user types including Service Providers and Customers.
+1. Waitlist requests raised by customers
+2. Waitlist requests raised by investors
+3. Waitlist requests raised by service providers
 
-### API Endpoints
 
-1. Get User Type by ID
-```http request
-GET /api/user-type/{id}
+## API Endpoints
+
+Refer to Swagger UI for more information
+
 ```
-Response:
-- ```type:``` 1 = Service Provider, 2 = Customer
-```json
-{
-  "type": 1,
-  "description": "Service Provider",
-  "enabled": true
-}
+/swagger-ui/index.html
 ```
----
-### MySQL Database schema
-```sql
-CREATE TABLE IF NOT EXISTS user_type (
-    did INT AUTO_INCREMENT PRIMARY KEY,
-    type VARCHAR(50) NOT NULL, -- TYPE 1 = Registration Service Provider, TYPE 2 = Customer Provider
-    description VARCHAR(50) NOT NULL,
-    enabled BOOLEAN NOT NULL
-);      
-```
-### Flyway migration errors
+
+## MySQL Database schema
+
+The Flyway plugin will create all required database tables when the application starts. <br/><br/>
+**Note:** For local development, please ensure that a schema named GlerProfile exists.
+If you prefer to use a different schema name, update the reference in the application-dev.properties file.
+However, **DO NOT CHANGE** the existing schema name in the **application-aws.properties** file.
+
+## Flyway migration errors
 - For a **FlywayValidateException** or a **Migration checksum mismatch**, either:
     1. Create a new Flyway migration file in  
        ```src/main/resources/scripts/```
@@ -37,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user_type (
        ```sql
        DROP DATABASE your_database_name;
         ```
-### Build & Run Locally
+## Build & Run Locally
 1. Build
 ```
 mvn clean install
