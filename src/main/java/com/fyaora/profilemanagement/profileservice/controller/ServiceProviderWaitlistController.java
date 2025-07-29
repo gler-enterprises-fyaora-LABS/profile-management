@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -45,6 +46,11 @@ public class ServiceProviderWaitlistController {
     )
     @PostMapping("/join")
     public ResponseEntity<?> joinWaitList(@Valid @RequestBody WaitlistServiceProviderRequestDTO waitListSPRequestDTO) {
+        if (StringUtils.isBlank(waitListSPRequestDTO.telnum())) {
+            throw new IllegalArgumentException(
+                    messageSource.getMessage("telnum.notempty", null, LocaleContextHolder.getLocale()));
+        }
+
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.SERVICE_PROVIDER);
         service.joinWaitlist(waitListSPRequestDTO);
 
