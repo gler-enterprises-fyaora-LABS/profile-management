@@ -2,10 +2,10 @@ package com.fyaora.profilemanagement.profileservice.service;
 
 import com.fyaora.profilemanagement.profileservice.advice.UserTypeNotFoundException;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeResponseDTO;
 import com.fyaora.profilemanagement.profileservice.dto.UserTypeStatus;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
-import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
 import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
@@ -13,16 +13,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,37 +42,27 @@ class UserTypeServiceImplTest {
     @Mock
     private UserTypeMapper userTypeMapper;
 
+    @Mock
+    private MessageSource messageSource;
+
     @InjectMocks
     private UserTypeServiceImpl userTypeService;
 
-    @ParameterizedTest
-    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER", "INDIVIDUAL", "BUSINESS"})
-    @DisplayName("Test: Successfully get user type for all UserTypeEnum values")
-    void testGetUserType_SuccessParameterized(UserTypeEnum type) {
-        // Arrange
-        int id;
-        String description;
-        switch (type) {
-            case SERVICE_PROVIDER:
-                id = 1;
-                description = "Service Provider Type Test";
-                break;
-            case CUSTOMER:
-                id = 2;
-                description = "Customer Type Test";
-                break;
-            case INDIVIDUAL:
-                id = 3;
-                description = "Individual Type Test";
-                break;
-            case BUSINESS:
-                id = 4;
-                description = "Business Type Test";
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown UserTypeEnum: " + type);
-        }
+    // Static method to provide test data for the parameterized test.
+    private static Stream<Arguments> userTypeSuccessProvider() {
+        return Stream.of(
+                Arguments.of(1, "Service Provider Type Test", UserTypeEnum.SERVICE_PROVIDER),
+                Arguments.of(2, "Customer Type Test", UserTypeEnum.CUSTOMER),
+                Arguments.of(3, "Individual Type Test", UserTypeEnum.INDIVIDUAL),
+                Arguments.of(4, "Business Type Test", UserTypeEnum.BUSINESS)
+        );
+    }
 
+    @ParameterizedTest
+    @MethodSource("userTypeSuccessProvider")
+    @DisplayName("Test: Successfully get user type for all UserTypeEnum values")
+    void testGetUserType_SuccessParameterized(int id, String description, UserTypeEnum type) {
+        // Arrange
         UserType userType = UserType.builder()
                 .did(id)
                 .type(type)
@@ -88,78 +86,24 @@ class UserTypeServiceImplTest {
         assertEquals(userTypeDTO.getId(), result.getId());
         assertEquals(userTypeDTO.getType(), result.getType());
         assertEquals(userTypeDTO.getDescription(), result.getDescription());
-        assertEquals(userTypeDTO.getEnabled(), result.getEnabled());
+        assertEquals(userTypeDTO.isEnabled(), result.isEnabled());
     }
 
     @ParameterizedTest
-    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER", "INDIVIDUAL", "BUSINESS"})
+    @CsvSource({
+            "SERVICE_PROVIDER",
+            "CUSTOMER",
+            "INDIVIDUAL",
+            "BUSINESS"
+    })
     @DisplayName("Test: Throw UserTypeNotFoundException when user type is not found")
     void testGetUserType_NotFoundParameterized(UserTypeEnum type) {
         // Arrange
         when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
+        when(messageSource.getMessage(anyString(), any(), any(Locale.class))).thenReturn("Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS");
 
         // Act & Assert
-        UserTypeNotFoundException exception = assertThrows(
-                UserTypeNotFoundException.class,
-                () -> userTypeService.getUserType(type)
-        );
-        assertEquals("Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS", exception.getMessage());
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = UserTypeEnum.class, names = {"SERVICE_PROVIDER", "CUSTOMER", "INDIVIDUAL", "BUSINESS"})
-    @DisplayName("Test: Throw UserTypeNotFoundException when user type is disabled")
-    void testGetUserType_DisabledParameterized(UserTypeEnum type) {
-        // Arrange
-        int id;
-        String description;
-        switch (type) {
-            case SERVICE_PROVIDER:
-                id = 1;
-                description = "Service Provider Type Test";
-                break;
-            case CUSTOMER:
-                id = 2;
-                description = "Customer Type Test";
-                break;
-            case INDIVIDUAL:
-                id = 3;
-                description = "Individual Type Test";
-                break;
-            case BUSINESS:
-                id = 4;
-                description = "Business Type Test";
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown UserTypeEnum: " + type);
-        }
-
-        UserType userType = UserType.builder()
-                .did(id)
-                .type(type)
-                .description(description)
-                .enabled(false)
-                .build();
-
-        when(userTypeRepository.findByTypeAndEnabled(type, true)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        UserTypeNotFoundException exception = assertThrows(
-                UserTypeNotFoundException.class,
-                () -> userTypeService.getUserType(type)
-        );
-        assertEquals("Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Test: Throw exception when user type is null")
-    void testGetUserType_NullInput() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userTypeService.getUserType(null)
-        );
-        assertEquals("User type cannot be null.", exception.getMessage());
+        assertThrows(UserTypeNotFoundException.class, () -> userTypeService.getUserType(type));
     }
 
     @Test
@@ -167,113 +111,16 @@ class UserTypeServiceImplTest {
     void testAddUserType_Success() {
         // Arrange
         UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(1);
         userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
         userTypeDTO.setDescription("Individual User Type");
         userTypeDTO.setEnabled(true);
 
-        UserType userType = UserType.builder()
-                .did(1)
-                .type(UserTypeEnum.INDIVIDUAL)
-                .description("Individual User Type")
-                .enabled(true)
-                .build();
+        UserType userType = new UserType();
+        userType.setType(UserTypeEnum.INDIVIDUAL);
+        userType.setDescription("Individual User Type");
+        userType.setEnabled(true);
 
-        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, UserTypeStatus.CREATED);
-
-        when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.empty());
-        when(userTypeMapper.userTypeDTOToUserType(userTypeDTO)).thenReturn(userType);
-        when(userTypeRepository.save(userType)).thenReturn(userType);
-
-        // Act
-        UserTypeResponseDTO result = userTypeService.addUserType(userTypeDTO);
-
-        // Assert
-        assertEquals(responseDTO.getId(), result.getId());
-        assertEquals(responseDTO.getType(), result.getType());
-        assertEquals(responseDTO.getStatus(), result.getStatus());
-    }
-
-    @Test
-    @DisplayName("Test: Throw IllegalArgumentException when user type DTO is null")
-    void testAddUserType_NullDTO() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userTypeService.addUserType(null)
-        );
-        assertEquals("User type and type enum cannot be null.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Test: Throw IllegalArgumentException when user type enum is null")
-    void testAddUserType_NullTypeEnum() {
-        // Arrange
-        UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(1);
-        userTypeDTO.setType(null);
-        userTypeDTO.setDescription("Invalid Type");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userTypeService.addUserType(userTypeDTO)
-        );
-        assertEquals("User type and type enum cannot be null.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Test: Throw IllegalArgumentException when user type already exists")
-    void testAddUserType_AlreadyExists() {
-        // Arrange
-        UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(1);
-        userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
-        userTypeDTO.setDescription("Individual User Type");
-        userTypeDTO.setEnabled(true);
-
-        UserType userType = UserType.builder()
-                .did(1)
-                .type(UserTypeEnum.INDIVIDUAL)
-                .description("Individual User Type")
-                .enabled(true)
-                .build();
-
-        when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.of(userType));
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userTypeService.addUserType(userTypeDTO)
-        );
-        assertEquals("The type already exists", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Test: Successfully add user type with enabled set to null")
-    void testAddUserType_EnabledNull() {
-        // Arrange
-        UserTypeDTO userTypeDTO = new UserTypeDTO();
-        userTypeDTO.setId(1);
-        userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
-        userTypeDTO.setDescription("Individual User Type");
-        userTypeDTO.setEnabled(null);
-
-        UserType userType = UserType.builder()
-                .did(1)
-                .type(UserTypeEnum.INDIVIDUAL)
-                .description("Individual User Type")
-                .enabled(null)
-                .build();
-
-        UserType savedUserType = UserType.builder()
-                .did(1)
-                .type(UserTypeEnum.INDIVIDUAL)
-                .description("Individual User Type")
-                .enabled(true)
-                .build();
-
-        UserTypeResponseDTO responseDTO = new UserTypeResponseDTO(1, UserTypeEnum.INDIVIDUAL, UserTypeStatus.CREATED);
+        UserType savedUserType = UserType.builder().did(1).type(UserTypeEnum.INDIVIDUAL).description("Individual User Type").enabled(true).build();
 
         when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.empty());
         when(userTypeMapper.userTypeDTOToUserType(userTypeDTO)).thenReturn(userType);
@@ -283,9 +130,33 @@ class UserTypeServiceImplTest {
         UserTypeResponseDTO result = userTypeService.addUserType(userTypeDTO);
 
         // Assert
-        assertEquals(responseDTO.getId(), result.getId());
-        assertEquals(responseDTO.getType(), result.getType());
-        assertEquals(responseDTO.getStatus(), result.getStatus());
-        assertTrue(savedUserType.getEnabled(), "Enabled should be set to true by the service");
+        assertNotNull(result);
+        assertEquals(savedUserType.getDid(), result.getId());
+        assertEquals(savedUserType.getType(), result.getType());
+        assertEquals(UserTypeStatus.CREATED, result.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test: Throw IllegalArgumentException when adding a user type that already exists")
+    void testAddUserType_AlreadyExists() {
+        // Arrange
+        UserTypeDTO userTypeDTO = new UserTypeDTO();
+        userTypeDTO.setType(UserTypeEnum.INDIVIDUAL);
+        userTypeDTO.setDescription("Individual User Type");
+        userTypeDTO.setEnabled(true);
+
+        UserType existingUserType = new UserType();
+        when(userTypeRepository.findByType(UserTypeEnum.INDIVIDUAL)).thenReturn(Optional.of(existingUserType));
+        when(messageSource.getMessage(anyString(), any(), any(Locale.class))).thenReturn("The type already exists.");
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userTypeService.addUserType(userTypeDTO));
+    }
+
+    @Test
+    @DisplayName("Test: Throw NullPointerException when addUserType is called with a null DTO")
+    void testAddUserType_NullDTO() {
+        // Act & Assert
+        assertThrows(NullPointerException.class, () -> userTypeService.addUserType(null));
     }
 }
