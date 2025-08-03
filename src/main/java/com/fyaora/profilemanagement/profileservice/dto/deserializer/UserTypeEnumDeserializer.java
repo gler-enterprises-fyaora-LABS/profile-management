@@ -12,7 +12,11 @@ import java.io.IOException;
 
 public class UserTypeEnumDeserializer extends JsonDeserializer<UserTypeEnum> {
 
-    private final MessageSource messageSource;
+    private MessageSource messageSource;
+
+    public UserTypeEnumDeserializer() {
+        // Default constructor
+    }
 
     public UserTypeEnumDeserializer(MessageSource messageSource) {
         this.messageSource = messageSource;
