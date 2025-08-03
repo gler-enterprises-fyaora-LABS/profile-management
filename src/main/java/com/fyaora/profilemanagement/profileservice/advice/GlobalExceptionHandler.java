@@ -3,6 +3,7 @@ package com.fyaora.profilemanagement.profileservice.advice;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
 import com.fyaora.profilemanagement.profileservice.dto.MessageListDTO;
+import com.fyaora.profilemanagement.profileservice.dto.UserTypeEnum;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,9 +53,21 @@ public class GlobalExceptionHandler {
         return getMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage(), webRequest);
     }
 
+//    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+//    public ResponseEntity<?> handleMethodArgumentTypeMismatch(Exception ex, WebRequest webRequest) {
+//        return getMessageDTO(HttpStatus.NOT_FOUND, ex.getMessage(), webRequest);
+//    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<?> handleMethodArgumentTypeMismatch(Exception ex, WebRequest webRequest) {
-        return getMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage(), webRequest);
+    public ResponseEntity<?> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest webRequest) {
+        String message;
+        if (ex.getRequiredType() == UserTypeEnum.class) {
+            message = "Invalid type. It should be CUSTOMER, SERVICE_PROVIDER, INDIVIDUAL or BUSINESS";
+            return getMessageDTO(HttpStatus.NOT_FOUND, message, webRequest);
+        } else {
+            message = "Invalid parameter type for '" + ex.getName() + "': " + ex.getValue();
+            return getMessageDTO(HttpStatus.BAD_REQUEST, message, webRequest);
+        }
     }
 
     @ExceptionHandler(InvalidEnumValueException.class)
