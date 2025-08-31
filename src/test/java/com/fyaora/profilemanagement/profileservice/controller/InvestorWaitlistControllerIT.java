@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @AutoConfigureMockMvc
-public class InvestorWaitlistControllerIT {
+class InvestorWaitlistControllerIT {
 
     private static final String JOIN_URL = "/api/v1/waitlist/investor/join";
     private static final String SEARCH_URL = "/api/v1/waitlist/investor/search";
