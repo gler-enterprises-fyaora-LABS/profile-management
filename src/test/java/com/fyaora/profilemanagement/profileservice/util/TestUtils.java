@@ -1,7 +1,5 @@
 package com.fyaora.profilemanagement.profileservice.util;
 
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistCustomerRequestDTO;
-
 public class TestUtils {
 
     /***************************************************************************************/
@@ -362,6 +360,77 @@ public class TestUtils {
     public static String searchWaitlistServiceProviderRequest_negative3() {
         return """
                  { "email": "", "telnum": "+449999999999", "page": 0 }
+                """;
+    }
+
+
+    /***************************************************************************************/
+    /*********************************** Inquire Objects ***********************************/
+    /***************************************************************************************/
+
+    public static String getInquire1() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire2() {
+        return """
+                 { "firstName": "", "lastName": "", "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire3() {
+        return """
+                 { "firstName": "", "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire4() {
+        return """
+                 { "firstName": null, "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire5() {
+        return """
+                 { "firstName": "first", "lastName": "", "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire6() {
+        return """
+                 { "firstName": "first", "lastName": null, "email": "test@hotmail.com", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire_negative1() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "", "message": "test message" }
+                """;
+    }
+
+    public static String getInquire_negative2() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": null, "message": "test message" }
+                """;
+    }
+
+    public static String getInquire_negative3() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": "" }
+                """;
+    }
+
+    public static String getInquire_negative4() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": null }
+                """;
+    }
+
+    public static String getInquire_negative5() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "@@#$$", "message": "test message" }
                 """;
     }
 }

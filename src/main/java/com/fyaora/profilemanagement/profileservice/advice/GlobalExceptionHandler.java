@@ -1,11 +1,13 @@
 package com.fyaora.profilemanagement.profileservice.advice;
 
 import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private final MessageSource messageSource;
@@ -39,6 +42,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<MessageDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest webRequest) {
         MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage(), webRequest);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<MessageDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest webRequest) {
+        String message = null != ex.getMostSpecificCause() ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
+        MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, message, webRequest);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<MessageDTO> handleException(Exception ex, WebRequest webRequest) {
+        log.error(ex.getMessage());
+        String message = messageSource.getMessage("system.admin.message", null, LocaleContextHolder.getLocale());
+        MessageDTO messageDTO = getMessageDTO(HttpStatus.INTERNAL_SERVER_ERROR, message, webRequest);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageDTO);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

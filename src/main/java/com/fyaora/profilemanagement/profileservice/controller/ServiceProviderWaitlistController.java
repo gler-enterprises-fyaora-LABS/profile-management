@@ -1,6 +1,8 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.dto.ResponseDTO;
+import com.fyaora.profilemanagement.profileservice.dto.ServiceProviderWaitlistResponseDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
 import com.fyaora.profilemanagement.profileservice.dto.WaitlistServiceProviderRequestDTO;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/waitlist/service-provider")
@@ -40,7 +41,7 @@ public class ServiceProviderWaitlistController {
     @Operation(
             summary = "Add service provider waitlist request",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully added service provider waitlist request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WaitlistServiceProviderRequestDTO.class))),
+                    @ApiResponse(responseCode = "200", description = "Successfully added service provider waitlist request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
@@ -55,7 +56,7 @@ public class ServiceProviderWaitlistController {
         service.joinWaitlist(waitListSPRequestDTO);
 
         String message = messageSource.getMessage("service.provider.join.waitlist.success", null, LocaleContextHolder.getLocale());
-        Map<String, String> response = Map.of("message", message);
+        ResponseDTO response = new ResponseDTO(message);
 
         return ResponseEntity.ok(response);
     }
@@ -63,7 +64,7 @@ public class ServiceProviderWaitlistController {
     @Operation(
             summary = "Search service provider waitlist requests",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Search service provider waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WaitlistServiceProviderRequestDTO.class))),
+                    @ApiResponse(responseCode = "200", description = "Search service provider waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ServiceProviderWaitlistResponseDTO.class))),
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
@@ -71,7 +72,7 @@ public class ServiceProviderWaitlistController {
     public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.SERVICE_PROVIDER);
         List<WaitlistServiceProviderRequestDTO> list = service.searchWaitlist(searchDTO);
-        Map<String, Object> response = Map.of("results", list);
+        ServiceProviderWaitlistResponseDTO response = new ServiceProviderWaitlistResponseDTO(list);
         return ResponseEntity.ok(response);
     }
 }

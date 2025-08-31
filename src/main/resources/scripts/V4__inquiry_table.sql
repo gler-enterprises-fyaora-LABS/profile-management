@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS inquiry (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(150),
+    email VARCHAR(100) NOT NULL,
+    message VARCHAR(1500) NOT NULL,
+    enabled BOOLEAN NOT NULL,
+    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
