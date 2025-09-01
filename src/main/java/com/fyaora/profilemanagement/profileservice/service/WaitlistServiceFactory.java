@@ -1,6 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.service;
 
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

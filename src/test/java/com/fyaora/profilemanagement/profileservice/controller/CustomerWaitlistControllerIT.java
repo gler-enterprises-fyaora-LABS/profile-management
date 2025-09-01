@@ -2,7 +2,7 @@ package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistCustomerRequestDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -75,8 +75,8 @@ class CustomerWaitlistControllerIT {
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully joined the waitlist"));
 
-            WaitlistCustomerRequestDTO deObj = objectMapper.readValue(dto, WaitlistCustomerRequestDTO.class);
-            WaitlistCustomerRequestDTO actualFromDb = getWaitlistRequestFromDB(deObj.email());
+            CustomerWaitlist deObj = objectMapper.readValue(dto, CustomerWaitlist.class);
+            CustomerWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
 
             Assertions.assertEquals(deObj.email(), actualFromDb.email(), "Email should match");
             Assertions.assertEquals(deObj.telnum(), actualFromDb.telnum(), "Telnum should match");
@@ -177,11 +177,11 @@ class CustomerWaitlistControllerIT {
         }
     }
 
-    private WaitlistCustomerRequestDTO getWaitlistRequestFromDB(String email) {
+    private CustomerWaitlist getWaitlistRequestFromDB(String email) {
         String sql = "SELECT email, telnum, postcode FROM waitlist WHERE email = ?";
-        WaitlistCustomerRequestDTO actualFromDb =
+        CustomerWaitlist actualFromDb =
                 jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
-                        WaitlistCustomerRequestDTO.builder()
+                        CustomerWaitlist.builder()
                                 .email(rs.getString("email"))
                                 .telnum(rs.getString("telnum"))
                                 .postcode(rs.getString("postcode"))

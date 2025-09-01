@@ -1,11 +1,11 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
-import com.fyaora.profilemanagement.profileservice.dto.ResponseDTO;
-import com.fyaora.profilemanagement.profileservice.dto.ServiceProviderWaitlistResponseDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistServiceProviderRequestDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlistWrapper;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
+import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,14 +46,14 @@ public class ServiceProviderWaitlistController {
             }
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinWaitList(@Valid @RequestBody WaitlistServiceProviderRequestDTO waitListSPRequestDTO) {
-        if (StringUtils.isBlank(waitListSPRequestDTO.telnum())) {
+    public ResponseEntity<?> joinWaitList(@Valid @RequestBody ServiceProviderWaitlist serviceProviderWaitlist) {
+        if (StringUtils.isBlank(serviceProviderWaitlist.telnum())) {
             throw new IllegalArgumentException(
                     messageSource.getMessage("telnum.notempty", null, LocaleContextHolder.getLocale()));
         }
 
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.SERVICE_PROVIDER);
-        service.joinWaitlist(waitListSPRequestDTO);
+        service.joinWaitlist(serviceProviderWaitlist);
 
         String message = messageSource.getMessage("service.provider.join.waitlist.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
@@ -64,15 +64,15 @@ public class ServiceProviderWaitlistController {
     @Operation(
             summary = "Search service provider waitlist requests",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Search service provider waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ServiceProviderWaitlistResponseDTO.class))),
+                    @ApiResponse(responseCode = "200", description = "Search service provider waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ServiceProviderWaitlistWrapper.class))),
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
     @PostMapping("/search")
-    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
+    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearch waitlistSearch) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.SERVICE_PROVIDER);
-        List<WaitlistServiceProviderRequestDTO> list = service.searchWaitlist(searchDTO);
-        ServiceProviderWaitlistResponseDTO response = new ServiceProviderWaitlistResponseDTO(list);
+        List<ServiceProviderWaitlist> list = service.searchWaitlist(waitlistSearch);
+        ServiceProviderWaitlistWrapper response = new ServiceProviderWaitlistWrapper(list);
         return ResponseEntity.ok(response);
     }
 }

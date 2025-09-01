@@ -1,14 +1,14 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistRepository;
-import com.fyaora.profilemanagement.profileservice.model.mapping.InvestorWaitlistMapper;
+import com.fyaora.profilemanagement.profileservice.model.db.mapper.InvestorWaitlistMapper;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +47,8 @@ public class InvestorWaitlistServiceImpl implements WaitlistService {
     }
 
     @Override
-    public void joinWaitlist(WaitlistRequestDTO requestDTO) {
-        if (requestDTO instanceof WaitlistInvestorRequestDTO investorRequestDTO) {
+    public void joinWaitlist(WaitlistRequest waitlistRequest) {
+        if (waitlistRequest instanceof InvestorWaitlist investorRequestDTO) {
             Waitlist waitlist = investorWaitlistMapper.toEntity(investorRequestDTO);
             waitlist.setUserType(UserTypeEnum.INVESTOR);
             waitlist.setEnabled(Boolean.TRUE);
@@ -57,7 +57,7 @@ public class InvestorWaitlistServiceImpl implements WaitlistService {
     }
 
     @Override
-    public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
+    public <T extends WaitlistRequest> List<T> searchWaitlist(WaitlistSearch searchDTO) {
         int page = searchDTO.page() == null ? 0 : searchDTO.page();
         int size = pageSize;
         Pageable pageable = PageRequest.of(page, size);
@@ -75,7 +75,7 @@ public class InvestorWaitlistServiceImpl implements WaitlistService {
                     messageSource.getMessage("investor.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
         }
 
-        List<WaitlistInvestorRequestDTO> dtoList = investorWaitlistMapper.toDtoList(list.getContent());
+        List<InvestorWaitlist> dtoList = investorWaitlistMapper.toDtoList(list.getContent());
         return (List<T>) dtoList;
     }
 }

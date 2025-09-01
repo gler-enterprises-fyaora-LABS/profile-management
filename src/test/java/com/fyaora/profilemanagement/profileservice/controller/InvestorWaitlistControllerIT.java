@@ -2,7 +2,7 @@ package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import com.jayway.jsonpath.JsonPath;
 import org.assertj.core.api.Assertions;
@@ -75,8 +75,8 @@ class InvestorWaitlistControllerIT {
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully joined the waitlist"));
 
-            WaitlistInvestorRequestDTO deObj = objectMapper.readValue(dto, WaitlistInvestorRequestDTO.class);
-            WaitlistInvestorRequestDTO actualFromDb = getWaitlistRequestFromDB(deObj.email());
+            InvestorWaitlist deObj = objectMapper.readValue(dto, InvestorWaitlist.class);
+            InvestorWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
 
             Assertions.assertThat(deObj.email()).isEqualTo(actualFromDb.email());
             Assertions.assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
@@ -190,11 +190,11 @@ class InvestorWaitlistControllerIT {
     }
 
 
-    private WaitlistInvestorRequestDTO getWaitlistRequestFromDB(String email) {
+    private InvestorWaitlist getWaitlistRequestFromDB(String email) {
         String sql = "SELECT email, telnum, name FROM waitlist WHERE email = ?";
-        WaitlistInvestorRequestDTO actualFromDb =
+        InvestorWaitlist actualFromDb =
                 jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
-                        WaitlistInvestorRequestDTO.builder()
+                        InvestorWaitlist.builder()
                                 .email(rs.getString("email"))
                                 .telnum(rs.getString("telnum"))
                                 .name(rs.getString("name"))

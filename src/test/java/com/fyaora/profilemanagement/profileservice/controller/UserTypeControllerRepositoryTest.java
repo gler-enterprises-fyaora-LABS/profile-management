@@ -1,11 +1,11 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fyaora.profilemanagement.profileservice.advice.GlobalExceptionHandler;
-import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.UserTypeRepository;
-import com.fyaora.profilemanagement.profileservice.model.mapping.UserTypeMapper;
+import com.fyaora.profilemanagement.profileservice.model.db.mapper.UserTypeMapper;
 import com.fyaora.profilemanagement.profileservice.service.impl.UserTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;

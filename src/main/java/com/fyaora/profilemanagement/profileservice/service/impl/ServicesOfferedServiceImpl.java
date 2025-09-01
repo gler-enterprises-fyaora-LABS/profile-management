@@ -1,10 +1,10 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
-import com.fyaora.profilemanagement.profileservice.dto.ServiceOfferedDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.ServiceOffered;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.ServicesOfferedRepository;
-import com.fyaora.profilemanagement.profileservice.model.mapping.ServiceOfferedMapper;
+import com.fyaora.profilemanagement.profileservice.model.db.mapper.ServiceOfferedMapper;
 import com.fyaora.profilemanagement.profileservice.service.ServicesOfferedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -30,13 +30,13 @@ public class ServicesOfferedServiceImpl implements ServicesOfferedService {
     }
 
     @Override
-    public void addService(ServiceOfferedDTO serviceOfferedDTO) {
-        ServiceOffered serviceOffered = serviceOfferedMapper.toEntity(serviceOfferedDTO);
+    public void addService(ServiceOfferedRequest serviceOfferedRequest) {
+        ServiceOffered serviceOffered = serviceOfferedMapper.toEntity(serviceOfferedRequest);
         servicesOfferedRepository.save(serviceOffered);
     }
 
     @Override
-    public List<ServiceOfferedDTO> getServices() {
+    public List<ServiceOfferedRequest> getServices() {
         List<ServiceOffered> services = servicesOfferedRepository.findAll();
         if (services.isEmpty()) {
             throw new ResourceNotFoundException(
