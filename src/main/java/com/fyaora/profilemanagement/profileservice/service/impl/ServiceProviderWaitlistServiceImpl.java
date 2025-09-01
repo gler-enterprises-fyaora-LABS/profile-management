@@ -1,18 +1,18 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistServiceProviderRequestDTO;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
+import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.ServiceOffered;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.WaitlistServiceOffered;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.ServicesOfferedRepository;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistRepository;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistServiceRepository;
-import com.fyaora.profilemanagement.profileservice.model.mapping.ServiceProviderWaitlistMapper;
+import com.fyaora.profilemanagement.profileservice.model.db.mapper.ServiceProviderWaitlistMapper;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +61,8 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
 
     @Override
     @Transactional
-    public void joinWaitlist(WaitlistRequestDTO requestDTO) {
-        if (requestDTO instanceof WaitlistServiceProviderRequestDTO serviceProviderRequestDTO) {
+    public void joinWaitlist(WaitlistRequest waitlistRequest) {
+        if (waitlistRequest instanceof ServiceProviderWaitlist serviceProviderRequestDTO) {
             Waitlist waitlist = serviceProviderWaitlistMapper.toEntity(serviceProviderRequestDTO);
             waitlist.setUserType(UserTypeEnum.SERVICE_PROVIDER);
             waitlist.setEnabled(Boolean.TRUE);
@@ -98,17 +98,17 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
     }
 
     @Override
-    public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
-        int page = searchDTO.page() == null ? 0 : searchDTO.page();
+    public <T extends WaitlistRequest> List<T> searchWaitlist(WaitlistSearch waitlistSearch) {
+        int page = waitlistSearch.page() == null ? 0 : waitlistSearch.page();
         int size = pageSize;
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Waitlist> list;
-        if (StringUtils.isBlank(searchDTO.email()) && StringUtils.isBlank(searchDTO.telnum())) {
+        if (StringUtils.isBlank(waitlistSearch.email()) && StringUtils.isBlank(waitlistSearch.telnum())) {
             list = waitlistRepository.findByUserType(UserTypeEnum.SERVICE_PROVIDER, pageable);
         } else {
             list = waitlistRepository.
-                    findByUserTypeAndEmailOrTelnum(UserTypeEnum.SERVICE_PROVIDER, searchDTO.email(), searchDTO.telnum(), pageable);
+                    findByUserTypeAndEmailOrTelnum(UserTypeEnum.SERVICE_PROVIDER, waitlistSearch.email(), waitlistSearch.telnum(), pageable);
         }
 
         if (list.isEmpty()) {
@@ -116,7 +116,7 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
                     messageSource.getMessage("service.provider.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
         }
 
-        List<WaitlistServiceProviderRequestDTO> dtoList = serviceProviderWaitlistMapper.toDtoList(list.getContent());
+        List<ServiceProviderWaitlist> dtoList = serviceProviderWaitlistMapper.toDtoList(list.getContent());
         return (List<T>) dtoList;
     }
 }

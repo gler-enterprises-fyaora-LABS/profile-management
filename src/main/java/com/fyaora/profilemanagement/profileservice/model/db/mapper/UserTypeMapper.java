@@ -1,6 +1,6 @@
-package com.fyaora.profilemanagement.profileservice.model.mapping;
+package com.fyaora.profilemanagement.profileservice.model.db.mapper;
 
-import com.fyaora.profilemanagement.profileservice.dto.UserTypeDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.UserTypeDTO;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.UserType;
 import org.mapstruct.Mapper;
 

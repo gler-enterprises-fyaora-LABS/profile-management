@@ -1,6 +1,11 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.dto.*;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
+import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlistWrapper;
+import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,9 +45,9 @@ public class CustomerWaitlistController {
             }
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinWaitList(@Valid @RequestBody WaitlistCustomerRequestDTO waitListRequestDTO) {
+    public ResponseEntity<?> joinWaitList(@Valid @RequestBody CustomerWaitlist customerWaitlist) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.CUSTOMER);
-        service.joinWaitlist(waitListRequestDTO);
+        service.joinWaitlist(customerWaitlist);
         String message = messageSource.getMessage("customer.join.waitlist.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
         return ResponseEntity.ok(response);
@@ -51,15 +56,15 @@ public class CustomerWaitlistController {
     @Operation(
             summary = "Search customer waitlist requests",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Search customer waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerWaitlistResponseDTO.class))),
+                    @ApiResponse(responseCode = "200", description = "Search customer waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerWaitlistWrapper.class))),
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
     @PostMapping("/search")
-    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
+    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearch waitlistSearch) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.CUSTOMER);
-        List<WaitlistCustomerRequestDTO> list = service.searchWaitlist(searchDTO);
-        CustomerWaitlistResponseDTO response = new CustomerWaitlistResponseDTO(list);
+        List<CustomerWaitlist> list = service.searchWaitlist(waitlistSearch);
+        CustomerWaitlistWrapper response = new CustomerWaitlistWrapper(list);
         return ResponseEntity.ok(response);
     }
 }

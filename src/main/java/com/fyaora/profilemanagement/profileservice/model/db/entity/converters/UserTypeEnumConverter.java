@@ -1,5 +1,6 @@
-package com.fyaora.profilemanagement.profileservice.model.db.entity;
+package com.fyaora.profilemanagement.profileservice.model.db.entity.converters;
 
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

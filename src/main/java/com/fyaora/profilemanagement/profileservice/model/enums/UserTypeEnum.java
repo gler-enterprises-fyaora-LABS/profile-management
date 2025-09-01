@@ -1,4 +1,4 @@
-package com.fyaora.profilemanagement.profileservice.model.db.entity;
+package com.fyaora.profilemanagement.profileservice.model.enums;
 
 public enum UserTypeEnum {
     CUSTOMER(1),

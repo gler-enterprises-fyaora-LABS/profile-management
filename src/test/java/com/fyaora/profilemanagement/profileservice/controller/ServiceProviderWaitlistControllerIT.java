@@ -2,8 +2,8 @@ package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistServiceProviderRequestDTO;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.VendorTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import com.jayway.jsonpath.JsonPath;
 import org.assertj.core.api.Assertions;
@@ -73,8 +73,8 @@ class ServiceProviderWaitlistControllerIT {
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully joined the waitlist"));
 
-            WaitlistServiceProviderRequestDTO deObj = objectMapper.readValue(dto, WaitlistServiceProviderRequestDTO.class);
-            WaitlistServiceProviderRequestDTO actualFromDb = getWaitlistRequestFromDB(deObj.email());
+            ServiceProviderWaitlist deObj = objectMapper.readValue(dto, ServiceProviderWaitlist.class);
+            ServiceProviderWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
 
             Assertions.assertThat(deObj.email()).isEqualTo(actualFromDb.email());
             Assertions.assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
@@ -232,11 +232,11 @@ class ServiceProviderWaitlistControllerIT {
         }
     }
 
-    private WaitlistServiceProviderRequestDTO getWaitlistRequestFromDB(String email) {
+    private ServiceProviderWaitlist getWaitlistRequestFromDB(String email) {
         String sql = "SELECT email, telnum, postcode, vendor_type FROM waitlist WHERE email = ?";
-        WaitlistServiceProviderRequestDTO actualFromDb =
+        ServiceProviderWaitlist actualFromDb =
                 jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
-                        WaitlistServiceProviderRequestDTO.builder()
+                        ServiceProviderWaitlist.builder()
                                 .email(rs.getString("email"))
                                 .telnum(rs.getString("telnum"))
                                 .postcode(rs.getString("postcode"))

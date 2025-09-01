@@ -1,7 +1,7 @@
-package com.fyaora.profilemanagement.profileservice.model.mapping;
+package com.fyaora.profilemanagement.profileservice.model.db.mapper;
 
-import com.fyaora.profilemanagement.profileservice.dto.ServiceOfferedDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistServiceProviderRequestDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
+import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.ServiceOffered;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.WaitlistServiceOffered;
@@ -14,17 +14,17 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ServiceProviderWaitlistMapper {
 
-    Waitlist toEntity(WaitlistServiceProviderRequestDTO requestDTO);
+    Waitlist toEntity(ServiceProviderWaitlist requestDTO);
 
     @Mapping(target = "services", source = "waitlistServiceOffered", qualifiedByName = "mapToServiceOfferedDTOs")
-    WaitlistServiceProviderRequestDTO toDto(Waitlist waitlist);
+    ServiceProviderWaitlist toDto(Waitlist waitlist);
 
-    List<WaitlistServiceProviderRequestDTO> toDtoList(List<Waitlist> waitlists);
+    List<ServiceProviderWaitlist> toDtoList(List<Waitlist> waitlists);
 
-    ServiceOfferedDTO toDto(ServiceOffered serviceOffered);
+    ServiceOfferedRequest toDto(ServiceOffered serviceOffered);
 
     @Named("mapToServiceOfferedDTOs")
-    default List<ServiceOfferedDTO> mapToServiceOfferedDTOs(List<WaitlistServiceOffered> serviceLinks) {
+    default List<ServiceOfferedRequest> mapToServiceOfferedDTOs(List<WaitlistServiceOffered> serviceLinks) {
         if (serviceLinks == null) return new ArrayList<>();
         return serviceLinks.stream()
                 .map(WaitlistServiceOffered::getService)

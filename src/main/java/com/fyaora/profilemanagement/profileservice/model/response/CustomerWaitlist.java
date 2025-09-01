@@ -1,13 +1,14 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record WaitlistCustomerRequestDTO(
+public record CustomerWaitlist(
         @JsonProperty("email")
         @NotEmpty(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
@@ -22,8 +23,8 @@ public record WaitlistCustomerRequestDTO(
 
         @JsonProperty("postcode") String postcode
 
-) implements WaitlistRequestDTO {
-        public WaitlistCustomerRequestDTO {
+) implements WaitlistRequest {
+        public CustomerWaitlist {
                 postcode = (null == postcode ? null : postcode.toUpperCase());
         }
 }

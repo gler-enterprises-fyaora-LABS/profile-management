@@ -1,14 +1,14 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record WaitlistInvestorRequestDTO(
+public record InvestorWaitlist(
         @JsonProperty("email")
         @NotEmpty(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
@@ -25,4 +25,4 @@ public record WaitlistInvestorRequestDTO(
         )
         String telnum
 
-) implements WaitlistRequestDTO { }
+) implements WaitlistRequest { }

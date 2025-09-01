@@ -1,7 +1,7 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.dto.InquiryDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.InquiryRequest;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Inquiry;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import org.assertj.core.api.Assertions;
@@ -66,7 +66,7 @@ class InquiryControllerIT {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully added the inquiry"))
                 .andReturn();
 
-        InquiryDTO dto = objectMapper.readValue(json, InquiryDTO.class);
+        InquiryRequest dto = objectMapper.readValue(json, InquiryRequest.class);
         Inquiry inquiry =
                 jdbcTemplate.queryForObject(QUERY, (rs, rowNum) -> Inquiry.builder()
                         .firstName(rs.getString("first_name"))

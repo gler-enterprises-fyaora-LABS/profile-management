@@ -1,7 +1,7 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

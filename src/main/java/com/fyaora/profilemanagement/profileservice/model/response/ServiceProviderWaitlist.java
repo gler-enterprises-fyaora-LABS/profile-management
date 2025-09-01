@@ -1,8 +1,11 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.VendorTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
+import com.fyaora.profilemanagement.profileservice.model.response.deserializer.ServiceOfferedDTODeserializer;
+import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +15,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder(toBuilder = true)
-public record WaitlistServiceProviderRequestDTO(
+public record ServiceProviderWaitlist(
         @NotEmpty(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
         @JsonProperty("email")
@@ -39,10 +42,10 @@ public record WaitlistServiceProviderRequestDTO(
         List<Integer> servicesOffered,
 
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        List<ServiceOfferedDTO> services
+        List<ServiceOfferedRequest> services
 
-) implements WaitlistRequestDTO {
-    public WaitlistServiceProviderRequestDTO {
+) implements WaitlistRequest {
+    public ServiceProviderWaitlist {
         postcode = (null == postcode) ? null : postcode.toUpperCase();
     }
 }

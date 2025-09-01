@@ -1,10 +1,10 @@
 package com.fyaora.profilemanagement.profileservice.service;
 
-import com.fyaora.profilemanagement.profileservice.dto.ServiceOfferedDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
 
 import java.util.List;
 
 public interface ServicesOfferedService {
-    void addService(ServiceOfferedDTO serviceOfferedDTO);
-    List<ServiceOfferedDTO> getServices();
+    void addService(ServiceOfferedRequest serviceOfferedRequest);
+    List<ServiceOfferedRequest> getServices();
 }

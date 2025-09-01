@@ -1,7 +1,7 @@
 package com.fyaora.profilemanagement.profileservice.service;
 
-import com.fyaora.profilemanagement.profileservice.dto.InquiryDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.InquiryRequest;
 
 public interface InquiryService {
-    void addInquiry(InquiryDTO inquiryDTO);
+    void addInquiry(InquiryRequest inquiryRequest);
 }

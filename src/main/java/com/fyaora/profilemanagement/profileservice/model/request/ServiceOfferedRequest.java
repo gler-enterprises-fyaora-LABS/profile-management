@@ -1,4 +1,4 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class ServiceOfferedDTO {
+public class ServiceOfferedRequest {
     @Schema(hidden = true)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;

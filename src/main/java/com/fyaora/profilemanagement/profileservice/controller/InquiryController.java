@@ -1,8 +1,8 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.dto.InquiryDTO;
-import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
-import com.fyaora.profilemanagement.profileservice.dto.ResponseDTO;
+import com.fyaora.profilemanagement.profileservice.model.request.InquiryRequest;
+import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
 import com.fyaora.profilemanagement.profileservice.service.InquiryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,8 +40,8 @@ public class InquiryController {
             }
     )
     @PostMapping
-    public ResponseEntity<?> addInquiry(@Valid @RequestBody InquiryDTO inquiryDTO) {
-        inquiryService.addInquiry(inquiryDTO);
+    public ResponseEntity<?> addInquiry(@Valid @RequestBody InquiryRequest inquiryRequest) {
+        inquiryService.addInquiry(inquiryRequest);
         String message = messageSource.getMessage("inquiry.add.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
         return ResponseEntity.status(HttpStatus.OK).body(response);

@@ -1,7 +1,7 @@
-package com.fyaora.profilemanagement.profileservice.model.db.entity;
+package com.fyaora.profilemanagement.profileservice.model.enums;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fyaora.profilemanagement.profileservice.dto.VendorTypeEnumDeserializer;
+import com.fyaora.profilemanagement.profileservice.model.response.deserializer.VendorTypeEnumDeserializer;
 
 @JsonDeserialize(using = VendorTypeEnumDeserializer.class)
 public enum VendorTypeEnum {

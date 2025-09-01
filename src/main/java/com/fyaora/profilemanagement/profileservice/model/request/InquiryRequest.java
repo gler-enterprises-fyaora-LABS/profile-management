@@ -1,4 +1,4 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record InquiryDTO(
+public record InquiryRequest(
         @JsonProperty("firstName")
         String firstName,
 

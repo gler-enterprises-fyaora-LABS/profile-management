@@ -1,14 +1,14 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistCustomerRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistRepository;
-import com.fyaora.profilemanagement.profileservice.model.mapping.CustomerWaitlistMapper;
+import com.fyaora.profilemanagement.profileservice.model.db.mapper.CustomerWaitlistMapper;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,8 +49,8 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
     }
 
     @Override
-    public void joinWaitlist(WaitlistRequestDTO requestDTO) {
-        if (requestDTO instanceof WaitlistCustomerRequestDTO customerRequestDTO) {
+    public void joinWaitlist(WaitlistRequest waitlistRequest) {
+        if (waitlistRequest instanceof CustomerWaitlist customerRequestDTO) {
             Waitlist waitlist = customerWaitlistMapper.toEntity(customerRequestDTO);
             waitlist.setUserType(UserTypeEnum.CUSTOMER);
             waitlist.setEnabled(Boolean.TRUE);
@@ -59,17 +59,17 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
     }
 
     @Override
-    public <T extends WaitlistRequestDTO> List<T> searchWaitlist(WaitlistSearchDTO searchDTO) {
-        int page = searchDTO.page() == null ? 0 : searchDTO.page();
+    public <T extends WaitlistRequest> List<T> searchWaitlist(WaitlistSearch waitlistSearch) {
+        int page = waitlistSearch.page() == null ? 0 : waitlistSearch.page();
         int size = pageSize;
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Waitlist> list;
 
-        if (StringUtils.isBlank(searchDTO.email()) && StringUtils.isBlank(searchDTO.telnum())) {
+        if (StringUtils.isBlank(waitlistSearch.email()) && StringUtils.isBlank(waitlistSearch.telnum())) {
             list = waitlistRepository.findByUserType(UserTypeEnum.CUSTOMER, pageable);
         } else {
-            list = waitlistRepository.findByUserTypeAndEmailOrTelnum(UserTypeEnum.CUSTOMER, searchDTO.email(), searchDTO.telnum(), pageable);
+            list = waitlistRepository.findByUserTypeAndEmailOrTelnum(UserTypeEnum.CUSTOMER, waitlistSearch.email(), waitlistSearch.telnum(), pageable);
         }
 
         if (list.isEmpty()) {
@@ -77,7 +77,7 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
                     messageSource.getMessage("customer.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
         }
 
-        List<WaitlistCustomerRequestDTO> requests = customerWaitlistMapper.toDtoList(list.getContent());
+        List<CustomerWaitlist> requests = customerWaitlistMapper.toDtoList(list.getContent());
         return (List<T>) requests;
     }
 }

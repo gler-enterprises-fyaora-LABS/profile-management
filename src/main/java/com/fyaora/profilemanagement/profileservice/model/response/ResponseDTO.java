@@ -1,4 +1,4 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

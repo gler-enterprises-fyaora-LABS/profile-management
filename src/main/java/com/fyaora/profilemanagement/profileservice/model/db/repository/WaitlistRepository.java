@@ -1,6 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.model.db.repository;
 
-import com.fyaora.profilemanagement.profileservice.model.db.entity.UserTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

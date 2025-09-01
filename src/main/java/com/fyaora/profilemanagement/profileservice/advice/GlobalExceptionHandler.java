@@ -1,6 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.advice;
 
-import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

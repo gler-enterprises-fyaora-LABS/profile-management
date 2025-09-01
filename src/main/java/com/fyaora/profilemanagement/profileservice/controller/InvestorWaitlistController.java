@@ -1,11 +1,11 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.dto.InvestorWaitlistResponseDTO;
-import com.fyaora.profilemanagement.profileservice.dto.MessageDTO;
-import com.fyaora.profilemanagement.profileservice.dto.ResponseDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistInvestorRequestDTO;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.dto.WaitlistSearchDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlistWrapper;
+import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
+import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
+import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
+import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,9 +45,9 @@ public class InvestorWaitlistController {
             }
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinWaitlist(@Valid @RequestBody WaitlistInvestorRequestDTO investorRequestDTO) {
+    public ResponseEntity<?> joinWaitlist(@Valid @RequestBody InvestorWaitlist investorWaitlist) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
-        service.joinWaitlist(investorRequestDTO);
+        service.joinWaitlist(investorWaitlist);
         String message = messageSource.getMessage("investor.join.waitlist.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
         return ResponseEntity.ok(response);
@@ -56,15 +56,15 @@ public class InvestorWaitlistController {
     @Operation(
             summary = "Search investor waitlist requests",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Search investor waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InvestorWaitlistResponseDTO.class))),
+                    @ApiResponse(responseCode = "200", description = "Search investor waitlist requests is success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InvestorWaitlistWrapper.class))),
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
     @PostMapping("/search")
-    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearchDTO searchDTO) {
+    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearch waitlistSearch) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
-        List<WaitlistInvestorRequestDTO> list = service.searchWaitlist(searchDTO);
-        InvestorWaitlistResponseDTO response = new InvestorWaitlistResponseDTO(list);
+        List<InvestorWaitlist> list = service.searchWaitlist(waitlistSearch);
+        InvestorWaitlistWrapper response = new InvestorWaitlistWrapper(list);
         return ResponseEntity.ok(response);
     }
 }

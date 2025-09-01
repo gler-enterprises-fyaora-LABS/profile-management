@@ -1,9 +1,9 @@
-package com.fyaora.profilemanagement.profileservice.dto;
+package com.fyaora.profilemanagement.profileservice.model.response.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fyaora.profilemanagement.profileservice.model.db.entity.VendorTypeEnum;
+import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
