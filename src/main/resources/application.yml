@@ -31,6 +31,18 @@ pagination:
 spring:
   config:
     activate:
+      on-profile: aws
+  datasource:
+    url: jdbc:mysql://flyora.c9yumqqqiqp6.us-east-1.rds.amazonaws.com:3306/GlerProfile?createDatabaseIfNotExist=true
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: prod
   datasource:
     url: jdbc:mysql://flyora.c9yumqqqiqp6.us-east-1.rds.amazonaws.com:3306/GlerProfile?createDatabaseIfNotExist=true
