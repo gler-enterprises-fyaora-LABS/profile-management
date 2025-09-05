@@ -122,10 +122,10 @@ class InvestorWaitlistControllerIT {
                                 .andReturn();
 
             String responseJson = result.getResponse().getContentAsString();
-            String resMessages = JsonPath.read(responseJson, "$.message");
-            List<String> mList = Arrays.stream(resMessages.split(";")).map(String::trim).collect(Collectors.toList());
+            List<String> actualMessages = JsonPath.parse(responseJson).read("$.fieldErrors[*].message");
 
-            Assertions.assertThat(messages).containsExactlyInAnyOrderElementsOf(mList);
+            Assertions.assertThat(actualMessages)
+                    .containsExactlyInAnyOrderElementsOf(messages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);

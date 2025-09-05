@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,6 +23,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
 import java.util.stream.Stream;
 
 @SpringBootTest
@@ -95,11 +98,11 @@ class CustomerWaitlistControllerIT {
             String requestDTO5 = TestUtils.getWaitlistCistomerRequest_negative5();
 
             return Stream.of(
-                    Arguments.of(requestDTO1, MockMvcResultMatchers.status().isBadRequest(), "Email must not be empty"),
-                    Arguments.of(requestDTO2, MockMvcResultMatchers.status().isBadRequest(), "Email must be a valid email address"),
-                    Arguments.of(requestDTO3, MockMvcResultMatchers.status().isBadRequest(), "Email must not be empty"),
-                    Arguments.of(requestDTO4, MockMvcResultMatchers.status().isBadRequest(), "Email must not be empty"),
-                    Arguments.of(requestDTO5, MockMvcResultMatchers.status().isBadRequest(), "Invalid telephone number format")
+                    Arguments.of(requestDTO1, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must not be empty")),
+                    Arguments.of(requestDTO2, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must be a valid email address")),
+                    Arguments.of(requestDTO3, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must not be empty")),
+                    Arguments.of(requestDTO4, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must not be empty")),
+                    Arguments.of(requestDTO5, MockMvcResultMatchers.status().isBadRequest(), List.of("Invalid telephone number format"))
             );
         }
 
@@ -107,13 +110,19 @@ class CustomerWaitlistControllerIT {
         @MethodSource("provideWaitlistCustomerRequest_nagative")
         @DisplayName("Should not save customer waitlist request")
         @Sql(scripts = "/db/table_clean.sql")
-        void shouldNotSaveCustomerWaitlistRequest(String dto, ResultMatcher status, String message) throws Exception {
-            mockMvc.perform(
+        void shouldNotSaveCustomerWaitlistRequest(String dto, ResultMatcher status, List<String> messages) throws Exception {
+            MvcResult result = mockMvc.perform(
                             MockMvcRequestBuilders.post(JOIN_URL)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(dto))
                     .andExpect(status)
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(message));
+                    .andReturn();
+
+            String responseJson = result.getResponse().getContentAsString();
+            List<String> actualMessages = JsonPath.parse(responseJson).read("$.fieldErrors[*].message");
+
+            org.assertj.core.api.Assertions.assertThat(actualMessages)
+                    .containsExactlyInAnyOrderElementsOf(messages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);

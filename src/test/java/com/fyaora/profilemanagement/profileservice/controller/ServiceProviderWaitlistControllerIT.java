@@ -87,47 +87,43 @@ class ServiceProviderWaitlistControllerIT {
 
     @Nested
     class NegativeScenarios {
-        static Stream<Arguments> provideWaitlistServiceProviderRequest_nagative() {
+        static Stream<Arguments> provideWaitlistServiceProviderRequest_nagativeWithFieldErrors() {
             String requestDTO1 = TestUtils.getWaitlistServiceProviderRequest_negative1();
             String requestDTO2 = TestUtils.getWaitlistServiceProviderRequest_negative2();
             String requestDTO3 = TestUtils.getWaitlistServiceProviderRequest_negative3();
             String requestDTO4 = TestUtils.getWaitlistServiceProviderRequest_negative4();
-            String requestDTO5 = TestUtils.getWaitlistServiceProviderRequest_negative5();
             String requestDTO6 = TestUtils.getWaitlistServiceProviderRequest_negative6();
             String requestDTO7 = TestUtils.getWaitlistServiceProviderRequest_negative7();
             String requestDTO8 = TestUtils.getWaitlistServiceProviderRequest_negative8();
-            String requestDTO9 = TestUtils.getWaitlistServiceProviderRequest_negative9();
             String requestDT10 = TestUtils.getWaitlistServiceProviderRequest_negative10();
-            String requestDT11 = TestUtils.getWaitlistServiceProviderRequest_negative11();
             String requestDT12 = TestUtils.getWaitlistServiceProviderRequest_negative12();
             String requestDT13 = TestUtils.getWaitlistServiceProviderRequest_negative13();
-            String requestDT14 = TestUtils.getWaitlistServiceProviderRequest_negative14();
 
             return Stream.of(
                     Arguments.of(requestDTO1, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must not be empty")),
                     Arguments.of(requestDTO2, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must not be empty")),
                     Arguments.of(requestDTO3, MockMvcResultMatchers.status().isBadRequest(), List.of("Email must be a valid email address")),
                     Arguments.of(requestDTO4, MockMvcResultMatchers.status().isBadRequest(), List.of("Invalid telephone number format or telephone umber is empty")),
-                    Arguments.of(requestDTO5, MockMvcResultMatchers.status().isBadRequest(), List.of("Phone Number must not be empty")),
                     Arguments.of(requestDTO6, MockMvcResultMatchers.status().isBadRequest(), List.of("Invalid telephone number format or telephone umber is empty")),
                     Arguments.of(requestDTO7, MockMvcResultMatchers.status().isBadRequest(), List.of("Postcode must not be empty")),
                     Arguments.of(requestDTO8, MockMvcResultMatchers.status().isBadRequest(), List.of("Postcode must not be empty")),
-                    Arguments.of(requestDTO9, MockMvcResultMatchers.status().isBadRequest(), List.of("Vendor Type must be either INDEPENDENT or COMPANY")),
                     Arguments.of(requestDT10, MockMvcResultMatchers.status().isBadRequest(), List.of("Vendor Type must be either INDEPENDENT or COMPANY")),
-                    Arguments.of(requestDT11, MockMvcResultMatchers.status().isBadRequest(), List.of("servicesOffered must be an array. Format should be [1,2,3]")),
                     Arguments.of(requestDT12, MockMvcResultMatchers.status().isBadRequest(), List.of("servicesOffered must be an array. Format should be [1,2,3]")),
                     Arguments.of(requestDT13, MockMvcResultMatchers.status().isBadRequest(),
                             List.of("Email must not be empty", "Invalid telephone number format or telephone umber is empty",
-                                    "Postcode must not be empty", "Vendor Type must be either INDEPENDENT or COMPANY", "servicesOffered must be an array. Format should be [1,2,3]")),
-                    Arguments.of(requestDT14, MockMvcResultMatchers.status().isNotFound(), List.of("The following service IDs were not found: [50, 100]"))
+                                    "Postcode must not be empty", "Vendor Type must be either INDEPENDENT or COMPANY", "servicesOffered must be an array. Format should be [1,2,3]"))
             );
         }
 
         @ParameterizedTest
-        @MethodSource("provideWaitlistServiceProviderRequest_nagative")
+        @MethodSource("provideWaitlistServiceProviderRequest_nagativeWithFieldErrors")
         @DisplayName("Should not save service provider waitlist request")
         @Sql(scripts = {"/db/table_clean.sql", "/db/add_services.sql"})
-        void shouldNotSaveServiceProviderWaitlistRequest(String dto, ResultMatcher status, List<String> messages) throws Exception {
+        void shouldNotSaveServiceProviderWaitlistRequest_withFieldErrors(
+                String dto,
+                ResultMatcher status,
+                List<String> expectedMessages
+        ) throws Exception {
             MvcResult result = mockMvc.perform(
                             MockMvcRequestBuilders.post(JOIN_URL)
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -136,15 +132,62 @@ class ServiceProviderWaitlistControllerIT {
                     .andReturn();
 
             String responseJson = result.getResponse().getContentAsString();
-            String resMessages = JsonPath.read(responseJson, "$.message");
-            List<String> mList = Arrays.stream(resMessages.split(";")).map(String::trim).collect(Collectors.toList());
 
-            Assertions.assertThat(messages).containsExactlyInAnyOrderElementsOf(mList);
+            List<String> actualMessages;
+            actualMessages = JsonPath.parse(responseJson).read("$.fieldErrors[*].message");
+
+            Assertions.assertThat(actualMessages)
+                    .containsExactlyInAnyOrderElementsOf(expectedMessages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);
             Assertions.assertThat(count).isEqualTo(0);
         }
+
+        static Stream<Arguments> provideWaitlistServiceProviderRequest_nagativeWithMessage() {
+            String requestDTO5 = TestUtils.getWaitlistServiceProviderRequest_negative5();
+            String requestDTO9 = TestUtils.getWaitlistServiceProviderRequest_negative9();
+            String requestDT11 = TestUtils.getWaitlistServiceProviderRequest_negative11();
+            String requestDT14 = TestUtils.getWaitlistServiceProviderRequest_negative14();
+
+            return Stream.of(
+                    Arguments.of(requestDTO5, MockMvcResultMatchers.status().isBadRequest(), List.of("Phone Number must not be empty")),
+                    Arguments.of(requestDTO9, MockMvcResultMatchers.status().isBadRequest(), List.of("Vendor Type must be either INDEPENDENT or COMPANY")),
+                    Arguments.of(requestDT11, MockMvcResultMatchers.status().isBadRequest(), List.of("servicesOffered must be an array. Format should be [1,2,3]")),
+                    Arguments.of(requestDT14, MockMvcResultMatchers.status().isNotFound(), List.of("The following service IDs were not found: [50, 100]"))
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideWaitlistServiceProviderRequest_nagativeWithMessage")
+        @DisplayName("Should not save service provider waitlist request")
+        @Sql(scripts = {"/db/table_clean.sql", "/db/add_services.sql"})
+        void shouldNotSaveServiceProviderWaitlistRequest_withoutMessage(
+                String dto,
+                ResultMatcher status,
+                List<String> expectedMessages
+        ) throws Exception {
+            MvcResult result = mockMvc.perform(
+                            MockMvcRequestBuilders.post(JOIN_URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(dto))
+                    .andExpect(status)
+                    .andReturn();
+
+            String responseJson = result.getResponse().getContentAsString();
+
+            List<String> actualMessages;
+            String message = JsonPath.parse(responseJson).read("$.message", String.class);
+            actualMessages = List.of(message);
+
+            Assertions.assertThat(actualMessages)
+                    .containsExactlyInAnyOrderElementsOf(expectedMessages);
+
+            String SQL = "SELECT COUNT(*) FROM waitlist";
+            long count = jdbcTemplate.queryForObject(SQL, Long.class);
+            Assertions.assertThat(count).isEqualTo(0);
+        }
+
     }
 
     @Nested
