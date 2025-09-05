@@ -1,5 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.advice;
 
+import com.fyaora.profilemanagement.profileservice.model.response.FieldErrorResponse;
 import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -61,19 +63,33 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<MessageDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest webRequest) {
-        String errorMessages =
+        List<FieldErrorResponse> errorMessages =
                 ex.getBindingResult()
                         .getFieldErrors()
                         .stream()
-                        .map(err -> messageSource.getMessage(err, LocaleContextHolder.getLocale()))
-                        .collect(Collectors.joining("; "));
+                        .map(err ->
+                                new FieldErrorResponse(err.getField(), messageSource.getMessage(err, LocaleContextHolder.getLocale())))
+                        .collect(Collectors.toList());
         MessageDTO messageDTO = getMessageDTO(HttpStatus.BAD_REQUEST, errorMessages, webRequest);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageDTO);
     }
 
     private MessageDTO getMessageDTO(HttpStatus status, String message, WebRequest webRequest) {
-        return
-                new MessageDTO(LocalDateTime.now(), status.value(), status.getReasonPhrase(), message,
-                        webRequest.getDescription(false).replace("uri=", ""));
+        return new MessageDTO(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                null,
+                webRequest.getDescription(false).replace("uri=", ""));
+    }
+
+    private MessageDTO getMessageDTO(HttpStatus status, List<FieldErrorResponse> messages, WebRequest webRequest) {
+        return new MessageDTO(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(), null,
+                messages,
+                webRequest.getDescription(false).replace("uri=", ""));
     }
 }

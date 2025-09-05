@@ -7,6 +7,9 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record InquiryRequest(
+        @JsonProperty(value = "id", access = JsonProperty.Access.READ_ONLY)
+        Long id,
+
         @JsonProperty("firstName")
         String firstName,
 
