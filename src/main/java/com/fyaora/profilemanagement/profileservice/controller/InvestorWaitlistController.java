@@ -13,14 +13,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -60,8 +66,26 @@ public class InvestorWaitlistController {
                     @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
-    @PostMapping("/search")
-    public ResponseEntity<?> searchWaitlist(@RequestBody WaitlistSearch waitlistSearch) {
+    @GetMapping("/search")
+    public ResponseEntity<?> searchWaitlist(
+            @RequestParam(value = "from", required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(value = "to", required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "telnum", required = false) String telnum,
+            @RequestParam(value = "pageNum", defaultValue = "0") @Min(0) int pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") @Min(1) @Max(100) int pageSize
+    ) {
+        WaitlistSearch waitlistSearch =
+                WaitlistSearch.builder()
+                        .from(from)
+                        .to(to)
+                        .email(email)
+                        .telnum(telnum)
+                        .pageNum(pageNum)
+                        .pageSize(pageSize)
+                        .build();
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
         List<InvestorWaitlist> list = service.searchWaitlist(waitlistSearch);
         InvestorWaitlistWrapper response = new InvestorWaitlistWrapper(list);

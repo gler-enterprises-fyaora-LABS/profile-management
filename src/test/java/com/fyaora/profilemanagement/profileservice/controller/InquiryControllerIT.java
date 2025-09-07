@@ -44,12 +44,12 @@ class InquiryControllerIT {
 
     static Stream<Arguments> provideValidInquiryJson() {
         return Stream.of(
-                Arguments.of(TestUtils.getInquire1()),
-                Arguments.of(TestUtils.getInquire2()),
-                Arguments.of(TestUtils.getInquire3()),
-                Arguments.of(TestUtils.getInquire4()),
-                Arguments.of(TestUtils.getInquire5()),
-                Arguments.of(TestUtils.getInquire6())
+                Arguments.of(TestUtils.addInquire1()),
+                Arguments.of(TestUtils.addInquire2()),
+                Arguments.of(TestUtils.addInquire3()),
+                Arguments.of(TestUtils.addInquire4()),
+                Arguments.of(TestUtils.addInquire5()),
+                Arguments.of(TestUtils.addInquire6())
         );
     }
 
@@ -82,11 +82,11 @@ class InquiryControllerIT {
 
     static Stream<Arguments> provideInvalidInquiryJSON() {
         return Stream.of(
-                Arguments.of(TestUtils.getInquire_negative1(), "email", "Email must not be empty"),
-                Arguments.of(TestUtils.getInquire_negative2(), "email", "Email must not be empty"),
-                Arguments.of(TestUtils.getInquire_negative3(), "message", "Message must not be empty"),
-                Arguments.of(TestUtils.getInquire_negative4(), "message", "Message must not be empty"),
-                Arguments.of(TestUtils.getInquire_negative5(), "email", "Email must be a valid email address")
+                Arguments.of(TestUtils.addInquire_negative1(), "email", "Email must not be empty"),
+                Arguments.of(TestUtils.addInquire_negative2(), "email", "Email must not be empty"),
+                Arguments.of(TestUtils.addInquire_negative3(), "message", "Message must not be empty"),
+                Arguments.of(TestUtils.addInquire_negative4(), "message", "Message must not be empty"),
+                Arguments.of(TestUtils.addInquire_negative5(), "email", "Email must be a valid email address")
         );
     }
 

@@ -10,38 +10,26 @@ import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.repository.WaitlistRepository;
 import com.fyaora.profilemanagement.profileservice.model.db.mapper.CustomerWaitlistMapper;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class CustomerWaitlistServiceImpl implements WaitlistService {
-
-    @Value("${pagination.page.size}")
-    private int pageSize;
 
     private final WaitlistRepository waitlistRepository;
     private final CustomerWaitlistMapper customerWaitlistMapper;
     private final MessageSource messageSource;
-
-    @Autowired
-    public CustomerWaitlistServiceImpl(WaitlistRepository repository,
-                                       CustomerWaitlistMapper mapper,
-                                       MessageSource messageSource) {
-        this.waitlistRepository = repository;
-        this.customerWaitlistMapper = mapper;
-        this.messageSource = messageSource;
-    }
+    private final WaitlistSpecificationBuilder specificationBuilder;
 
     @Override
     public WaitlistProcess getProcess() {
@@ -54,30 +42,25 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
             Waitlist waitlist = customerWaitlistMapper.toEntity(customerRequestDTO);
             waitlist.setUserType(UserTypeEnum.CUSTOMER);
             waitlist.setEnabled(Boolean.TRUE);
+            waitlist.setCreatedDatetime(LocalDateTime.now());
             waitlistRepository.save(waitlist);
         }
     }
 
     @Override
     public <T extends WaitlistRequest> List<T> searchWaitlist(WaitlistSearch waitlistSearch) {
-        int page = waitlistSearch.page() == null ? 0 : waitlistSearch.page();
-        int size = pageSize;
-        Pageable pageable = PageRequest.of(page, size);
+        Specification<Waitlist> spec = specificationBuilder.build(waitlistSearch, UserTypeEnum.CUSTOMER);
 
-        Page<Waitlist> list;
+        int pageNum = waitlistSearch.pageNum();
+        int pageSize = waitlistSearch.pageSize();
+        Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("id").ascending());
 
-        if (StringUtils.isBlank(waitlistSearch.email()) && StringUtils.isBlank(waitlistSearch.telnum())) {
-            list = waitlistRepository.findByUserType(UserTypeEnum.CUSTOMER, pageable);
-        } else {
-            list = waitlistRepository.findByUserTypeAndEmailOrTelnum(UserTypeEnum.CUSTOMER, waitlistSearch.email(), waitlistSearch.telnum(), pageable);
-        }
-
+        Page<Waitlist> page = waitlistRepository.findAll(spec, pageable);
+        List<CustomerWaitlist> list = customerWaitlistMapper.toDtoList(page.getContent());
         if (list.isEmpty()) {
             throw new ResourceNotFoundException(
                     messageSource.getMessage("customer.waitlist.requests.not.found", null, LocaleContextHolder.getLocale()));
         }
-
-        List<CustomerWaitlist> requests = customerWaitlistMapper.toDtoList(list.getContent());
-        return (List<T>) requests;
+        return (List<T>) list;
     }
 }
