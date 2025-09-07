@@ -8,6 +8,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,7 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
+import org.springframework.util.MultiValueMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -139,20 +140,19 @@ class CustomerWaitlistControllerIT {
                     Arguments.of(TestUtils.searchWaitlistCustomerRequest1(), 4),
                     Arguments.of(TestUtils.searchWaitlistCustomerRequest2(), 1),
                     Arguments.of(TestUtils.searchWaitlistCustomerRequest3(), 1),
-                    Arguments.of(TestUtils.searchWaitlistCustomerRequest4(), 2)
+                    Arguments.of(TestUtils.searchWaitlistCustomerRequest4(), 1),
+                    Arguments.of(TestUtils.searchWaitlistCustomerRequest5(), 3)
             );
         }
 
         @ParameterizedTest
         @MethodSource("provideSearchDTOForPositiveScenarios")
         @DisplayName("Should retrieve customer waitlist request")
-        void shouldRetrieveCustomerWaitlistRecords(String searchDto, int size) throws Exception {
+        void shouldRetrieveCustomerWaitlistRecords(MultiValueMap<String, String> params, int size) throws Exception {
                 MvcResult result =
                         mockMvc.perform(
-                                MockMvcRequestBuilders
-                                        .post(SEARCH_URL)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(searchDto))
+                                MockMvcRequestBuilders.get(SEARCH_URL)
+                                        .params(params))
                                 .andExpect(MockMvcResultMatchers.status().isOk())
                                 .andReturn();
             String responseJson = result.getResponse().getContentAsString();
@@ -175,14 +175,30 @@ class CustomerWaitlistControllerIT {
         @ParameterizedTest
         @MethodSource("provideSearchDTOForNegativeScenario")
         @DisplayName("Should not retrieve customer waitlist request")
-        void shouldNotRetrieveCustomerWaitlistRecords(String searchDto) throws Exception {
+        void shouldNotRetrieveCustomerWaitlistRecords(MultiValueMap<String, String> params) throws Exception {
             mockMvc.perform(
-                            MockMvcRequestBuilders
-                                    .post(SEARCH_URL)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(searchDto))
+                            MockMvcRequestBuilders.get(SEARCH_URL)
+                                    .params(params)
+                    )
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Customer waitlist requests not found"));
+        }
+
+        @Test
+        @DisplayName("Should retrieve customer waitlist request for default vales")
+        void shouldRetrieveCustomerWaitlistRecords_forDefaultParamValues() throws Exception {
+            MvcResult result =
+                    mockMvc.perform(
+                                    MockMvcRequestBuilders.get(SEARCH_URL))
+                            .andExpect(MockMvcResultMatchers.status().isOk())
+                            .andReturn();
+            String responseJson = result.getResponse().getContentAsString();
+            JsonNode root = objectMapper.readTree(responseJson);
+            JsonNode results = root.get("results");
+
+            Assertions.assertNotNull(results);
+            Assertions.assertTrue(results.isArray());
+            Assertions.assertEquals(10, results.size());
         }
     }
 

@@ -1,5 +1,8 @@
 package com.fyaora.profilemanagement.profileservice.util;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 public class TestUtils {
 
     /***************************************************************************************/
@@ -66,46 +69,78 @@ public class TestUtils {
                """;
     }
 
-    public static String searchWaitlistCustomerRequest1() {
-        return """
-                 { "email": "", "telnum": "", "page": 3 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("pageNum", "3");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest2() {
-        return """
-                 { "email": "user1@example.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user1@example.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest3() {
-        return """
-                 { "email": "", "telnum": "+447000000004", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("telnum", "+447000000004");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest4() {
-        return """
-                 { "email": "user1@example.com", "telnum": "+447000000004", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest4() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user1@example.com");
+        map.add("telnum", "+447000000001");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest_negative1() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest5() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-08-01");
+        map.add("to", "2025-08-10");
+        map.add("pageNum", "1");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest_negative2() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest_negative1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "invalid-email@invalid.com");
+        map.add("telnum", "+449999999999");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistCustomerRequest_negative3() {
-        return """
-                 { "email": "", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest_negative2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "invalid-email@invalid.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
+    }
+
+    public static MultiValueMap<String, String> searchWaitlistCustomerRequest_negative3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("telnum", "+44000000000");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
     /***************************************************************************************/
@@ -178,46 +213,84 @@ public class TestUtils {
                """;
     }
 
-    public static String searchWaitlistInvestorRequest1() {
-        return """
-                 { "email": "", "telnum": "", "page": 3 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("pageNum", "3");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest2() {
-        return """
-                 { "email": "user81@example.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-08-01");
+        map.add("to", "2025-10-10");
+        map.add("email", "user81@example.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest3() {
-        return """
-                 { "email": "", "telnum": "+447000000090", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-08-01");
+        map.add("to", "2025-10-10");
+        map.add("telnum", "+447000000090");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest4() {
-        return """
-                 { "email": "user81@example.com", "telnum": "+447000000090", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest4() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user81@example.com");
+        map.add("telnum", "+447000000081");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest_negative1() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest_negative1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-08-01");
+        map.add("to", "2025-10-10");
+        map.add("email", "invalid-email@invalid.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest_negative2() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest_negative2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-08-01");
+        map.add("to", "2025-10-10");
+        map.add("telnum", "+449999999999");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistInvestorRequest_negative3() {
-        return """
-                 { "email": "", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest_negative3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("from", "2025-07-01");
+        map.add("to", "2025-07-10");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
+    }
+
+    public static MultiValueMap<String, String> searchWaitlistInvestorRequest_negative4() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("pageNum", "10");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
     /***************************************************************************************/
@@ -315,52 +388,88 @@ public class TestUtils {
                """;
     }
 
-    public static String searchWaitlistServiceProviderRequest1() {
-        return """
-                 { "email": "", "telnum": "", "page": 3 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("pageNum", "3");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest2() {
-        return """
-                 { "email": "user74@example.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user74@example.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest3() {
-        return """
-                 { "email": "", "telnum": "+447000000080", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("telnum", "+447000000080");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest4() {
-        return """
-                 { "email": "user74@example.com", "telnum": "+447000000080", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest4() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user74@example.com");
+        map.add("telnum", "+447000000074");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchServicesForWaitlistServiceProviderRequest() {
-        return """
-                 { "email": "user92@example.com", "telnum": "+447000000092", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest5() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("pageNum", "3");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest_negative1() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchServicesForWaitlistServiceProviderRequest() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "user92@example.com");
+        map.add("telnum", "+447000000092");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest_negative2() {
-        return """
-                 { "email": "invalid-email@invalid.com", "telnum": "", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest_negative1() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "invalid-email@example.com");
+        map.add("telnum", "+449999999999");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
     }
 
-    public static String searchWaitlistServiceProviderRequest_negative3() {
-        return """
-                 { "email": "", "telnum": "+449999999999", "page": 0 }
-                """;
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest_negative2() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "invalid-email@example.com");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+
+        return map;
+    }
+
+    public static MultiValueMap<String, String> searchWaitlistServiceProviderRequest_negative3() {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("telnum", "449999999999");
+        map.add("pageNum", "0");
+        map.add("pageSize", "10");
+        map.add("from", "2025-06-01");
+        map.add("to", "2025-10-10");
+
+        return map;
     }
 
 
@@ -368,67 +477,67 @@ public class TestUtils {
     /*********************************** Inquire Objects ***********************************/
     /***************************************************************************************/
 
-    public static String getInquire1() {
+    public static String addInquire1() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire2() {
+    public static String addInquire2() {
         return """
                  { "firstName": "", "lastName": "", "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire3() {
+    public static String addInquire3() {
         return """
                  { "firstName": "", "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire4() {
+    public static String addInquire4() {
         return """
                  { "firstName": null, "lastName": "last name", "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire5() {
+    public static String addInquire5() {
         return """
                  { "firstName": "first", "lastName": "", "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire6() {
+    public static String addInquire6() {
         return """
                  { "firstName": "first", "lastName": null, "email": "test@hotmail.com", "message": "test message" }
                 """;
     }
 
-    public static String getInquire_negative1() {
+    public static String addInquire_negative1() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "", "message": "test message" }
                 """;
     }
 
-    public static String getInquire_negative2() {
+    public static String addInquire_negative2() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": null, "message": "test message" }
                 """;
     }
 
-    public static String getInquire_negative3() {
+    public static String addInquire_negative3() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": "" }
                 """;
     }
 
-    public static String getInquire_negative4() {
+    public static String addInquire_negative4() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", "message": null }
                 """;
     }
 
-    public static String getInquire_negative5() {
+    public static String addInquire_negative5() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "@@#$$", "message": "test message" }
                 """;

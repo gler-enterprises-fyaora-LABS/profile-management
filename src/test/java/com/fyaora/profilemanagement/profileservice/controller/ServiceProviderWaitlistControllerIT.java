@@ -1,12 +1,14 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import com.jayway.jsonpath.JsonPath;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,10 +27,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @SpringBootTest
@@ -76,12 +78,12 @@ class ServiceProviderWaitlistControllerIT {
             ServiceProviderWaitlist deObj = objectMapper.readValue(dto, ServiceProviderWaitlist.class);
             ServiceProviderWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
 
-            Assertions.assertThat(deObj.email()).isEqualTo(actualFromDb.email());
-            Assertions.assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
-            Assertions.assertThat(deObj.postcode()).isEqualTo(actualFromDb.postcode());
+            assertThat(deObj.email()).isEqualTo(actualFromDb.email());
+            assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
+            assertThat(deObj.postcode()).isEqualTo(actualFromDb.postcode());
 
             List<Integer> serviceIds = getServiceIds(deObj.email());
-            Assertions.assertThat(serviceIds).containsExactlyInAnyOrderElementsOf(deObj.servicesOffered());
+            assertThat(serviceIds).containsExactlyInAnyOrderElementsOf(deObj.servicesOffered());
         }
     }
 
@@ -136,12 +138,12 @@ class ServiceProviderWaitlistControllerIT {
             List<String> actualMessages;
             actualMessages = JsonPath.parse(responseJson).read("$.fieldErrors[*].message");
 
-            Assertions.assertThat(actualMessages)
+            assertThat(actualMessages)
                     .containsExactlyInAnyOrderElementsOf(expectedMessages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);
-            Assertions.assertThat(count).isEqualTo(0);
+            assertThat(count).isEqualTo(0);
         }
 
         static Stream<Arguments> provideWaitlistServiceProviderRequest_nagativeWithMessage() {
@@ -180,12 +182,12 @@ class ServiceProviderWaitlistControllerIT {
             String message = JsonPath.parse(responseJson).read("$.message", String.class);
             actualMessages = List.of(message);
 
-            Assertions.assertThat(actualMessages)
+            assertThat(actualMessages)
                     .containsExactlyInAnyOrderElementsOf(expectedMessages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);
-            Assertions.assertThat(count).isEqualTo(0);
+            assertThat(count).isEqualTo(0);
         }
 
     }
@@ -199,20 +201,18 @@ class ServiceProviderWaitlistControllerIT {
                     Arguments.of(TestUtils.searchWaitlistServiceProviderRequest1(), 3),
                     Arguments.of(TestUtils.searchWaitlistServiceProviderRequest2(), 1),
                     Arguments.of(TestUtils.searchWaitlistServiceProviderRequest3(), 1),
-                    Arguments.of(TestUtils.searchWaitlistServiceProviderRequest4(), 2)
+                    Arguments.of(TestUtils.searchWaitlistServiceProviderRequest4(), 1),
+                    Arguments.of(TestUtils.searchWaitlistServiceProviderRequest5(), 3)
             );
         }
 
         @ParameterizedTest
         @MethodSource("provideSearchDTOForPositiveScenarios")
         @DisplayName("Should retrieve service provider waitlist request")
-        void shouldRetrieveServiceProviderWaitlistRecords(String searchDto, int size) throws Exception {
+        void shouldRetrieveServiceProviderWaitlistRecords(MultiValueMap<String, String> mapParams, int size) throws Exception {
             MvcResult result =
                     mockMvc.perform(
-                                    MockMvcRequestBuilders
-                                            .post(SEARCH_URL)
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .content(searchDto))
+                                    MockMvcRequestBuilders.get(SEARCH_URL).params(mapParams))
                             .andExpect(MockMvcResultMatchers.status().isOk())
                             .andReturn();
             String responseJson = result.getResponse().getContentAsString();
@@ -222,6 +222,61 @@ class ServiceProviderWaitlistControllerIT {
             org.junit.jupiter.api.Assertions.assertNotNull(results);
             org.junit.jupiter.api.Assertions.assertTrue(results.isArray());
             org.junit.jupiter.api.Assertions.assertEquals(size, results.size());
+        }
+
+        @Test
+        @DisplayName("Should retrieve service provider waitlist request for default parameter values")
+        void shouldRetrieveServiceProviderWaitlistRecords_withDefaultParameters() throws Exception {
+            MvcResult result =
+                    mockMvc.perform(
+                                    MockMvcRequestBuilders.get(SEARCH_URL))
+                            .andExpect(MockMvcResultMatchers.status().isOk())
+                            .andReturn();
+            String responseJson = result.getResponse().getContentAsString();
+            JsonNode root = objectMapper.readTree(responseJson);
+            JsonNode results = root.get("results");
+
+            assertThat(results).isNotNull().isNotEmpty();
+            assertThat(results.isArray()).isTrue();
+            assertThat(results.size()).isEqualTo(10);
+            assertThat(results.get(1).get("email").textValue()).isEqualTo("user5@example.com");
+            assertThat(results.get(1).get("telnum").textValue()).isEqualTo("+447000000005");
+            assertThat(results.get(1).get("postcode").textValue()).isEqualTo("B1 1AA");
+            assertThat(results.get(1).get("vendorType").textValue()).isEqualTo("INDEPENDENT");
+
+            JsonNode user5 = results.get(1);
+            JsonNode servicesNode = user5.get("services");
+
+            // Convert to List<Map<String, Object>>
+            List<Map<String, Object>> actualServices = objectMapper.convertValue(
+                    servicesNode, new TypeReference<>() {}
+            );
+
+            // Expected list
+            List<Map<String, Object>> expectedServices = List.of(
+                    Map.of(
+                            "id", 2,
+                            "name", "Electrical",
+                            "description", "Residential and commercial electrical installations, rewiring, and fault fixing"
+                    ),
+                    Map.of(
+                            "id", 3,
+                            "name", "Landscaping",
+                            "description", "Garden design, lawn care, and outdoor maintenance"
+                    ),
+                    Map.of(
+                            "id", 8,
+                            "name", "HVAC",
+                            "description", "Heating, ventilation, and air conditioning installation and maintenance"
+                    )
+            );
+
+            // Assert without order sensitivity
+            assertThat(actualServices)
+                    .usingRecursiveFieldByFieldElementComparatorIgnoringFields() // deep compare
+                    .containsExactlyInAnyOrderElementsOf(expectedServices);
+
+
         }
 
         static Stream<Arguments> provideSearchDTOForNegativeScenario() {
@@ -235,12 +290,9 @@ class ServiceProviderWaitlistControllerIT {
         @ParameterizedTest
         @MethodSource("provideSearchDTOForNegativeScenario")
         @DisplayName("Should not retrieve Service Provider waitlist request")
-        void shouldNotRetrieveServiceProviderWaitlistRecords(String searchDto) throws Exception {
+        void shouldNotRetrieveServiceProviderWaitlistRecords(MultiValueMap<String, String> mapParams) throws Exception {
             mockMvc.perform(
-                            MockMvcRequestBuilders
-                                    .post(SEARCH_URL)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(searchDto))
+                            MockMvcRequestBuilders.get(SEARCH_URL).params(mapParams))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Service provider waitlist requests not found"));
         }
@@ -250,9 +302,8 @@ class ServiceProviderWaitlistControllerIT {
         void shouldReturnServicesForServiceProvider() throws Exception {
             MvcResult result =
                     mockMvc.perform(
-                                    MockMvcRequestBuilders.post(SEARCH_URL)
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .content(TestUtils.searchServicesForWaitlistServiceProviderRequest()))
+                                    MockMvcRequestBuilders.get(SEARCH_URL)
+                                            .params(TestUtils.searchServicesForWaitlistServiceProviderRequest()))
                             .andExpect(MockMvcResultMatchers.status().isOk())
                             .andReturn();
 
@@ -260,18 +311,18 @@ class ServiceProviderWaitlistControllerIT {
             JsonNode root = objectMapper.readTree(responseJson);
             JsonNode results = root.get("results");
 
-            Assertions.assertThat(results).isNotNull();
-            Assertions.assertThat(results.isArray()).isTrue();
+            assertThat(results).isNotNull();
+            assertThat(results.isArray()).isTrue();
 
             JsonNode services = root.get("results").get(0).get("services");
-            Assertions.assertThat(services).isNotNull();
-            Assertions.assertThat(services.isArray()).isTrue();
-            Assertions.assertThat(services.size()).isEqualTo(3);
+            assertThat(services).isNotNull();
+            assertThat(services.isArray()).isTrue();
+            assertThat(services.size()).isEqualTo(3);
 
             List<String> serviceList = new ArrayList<>();
             services.forEach(s -> serviceList.add(s.get("name").asText()));
             List<String> expected = List.of("Carpentry", "Cleaning", "Pest Control");
-            Assertions.assertThat(serviceList).containsExactlyInAnyOrderElementsOf(expected);
+            assertThat(serviceList).containsExactlyInAnyOrderElementsOf(expected);
         }
     }
 

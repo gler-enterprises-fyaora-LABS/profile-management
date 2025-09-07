@@ -1,5 +1,7 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
@@ -8,6 +10,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,9 +26,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import java.util.Arrays;
+import org.springframework.util.MultiValueMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SpringBootTest
@@ -142,20 +144,18 @@ class InvestorWaitlistControllerIT {
                     Arguments.of(TestUtils.searchWaitlistInvestorRequest1(), 3),
                     Arguments.of(TestUtils.searchWaitlistInvestorRequest2(), 1),
                     Arguments.of(TestUtils.searchWaitlistInvestorRequest3(), 1),
-                    Arguments.of(TestUtils.searchWaitlistInvestorRequest4(), 2)
+                    Arguments.of(TestUtils.searchWaitlistInvestorRequest4(), 1)
             );
         }
 
         @ParameterizedTest
         @MethodSource("provideSearchDTOForPositiveScenarios")
         @DisplayName("Should retrieve Investor waitlist request")
-        void shouldRetrieveInvestorWaitlistRecords(String searchDto, int size) throws Exception {
+        void shouldRetrieveInvestorWaitlistRecords(MultiValueMap<String, String> params, int size) throws Exception {
             MvcResult result =
                     mockMvc.perform(
-                                    MockMvcRequestBuilders
-                                            .post(SEARCH_URL)
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .content(searchDto))
+                                    MockMvcRequestBuilders.get(SEARCH_URL)
+                                            .params(params))
                             .andExpect(MockMvcResultMatchers.status().isOk())
                             .andReturn();
             String responseJson = result.getResponse().getContentAsString();
@@ -167,23 +167,42 @@ class InvestorWaitlistControllerIT {
             org.junit.jupiter.api.Assertions.assertEquals(size, results.size());
         }
 
+        @Test
+        @DisplayName("Should retrieve Investor waitlist request for default parameter values")
+        void shouldRetrieveInvestorWaitlistRecords_forDefaultParameters() throws Exception {
+            MvcResult result =
+                    mockMvc.perform(
+                                    MockMvcRequestBuilders.get(SEARCH_URL))
+                            .andExpect(MockMvcResultMatchers.status().isOk())
+                            .andReturn();
+            String responseJson = result.getResponse().getContentAsString();
+            JsonNode root = objectMapper.readTree(responseJson);
+            JsonNode results = root.get("results");
+
+            assertThat(results).isNotNull().isNotEmpty();
+            assertThat(results.isArray()).isTrue();
+            assertThat(results.size()).isEqualTo(10);
+            assertThat(results.get(9).get("email").textValue()).isEqualTo("user30@example.com");
+            assertThat(results.get(9).get("telnum").textValue()).isEqualTo("+447000000030");
+            assertThat(results.get(9).get("name").textValue()).isEqualTo("User30");
+        }
+
         static Stream<Arguments> provideSearchDTOForNegativeScenario() {
             return Stream.of(
                     Arguments.of(TestUtils.searchWaitlistInvestorRequest_negative1()),
                     Arguments.of(TestUtils.searchWaitlistInvestorRequest_negative2()),
-                    Arguments.of(TestUtils.searchWaitlistInvestorRequest_negative3())
+                    Arguments.of(TestUtils.searchWaitlistInvestorRequest_negative3()),
+                    Arguments.of(TestUtils.searchWaitlistInvestorRequest_negative4())
             );
         }
 
         @ParameterizedTest
         @MethodSource("provideSearchDTOForNegativeScenario")
         @DisplayName("Should not retrieve Investor waitlist request")
-        void shouldNotRetrieveInvestorWaitlistRecords(String searchDto) throws Exception {
+        void shouldNotRetrieveInvestorWaitlistRecords(MultiValueMap<String, String> param) throws Exception {
             mockMvc.perform(
-                            MockMvcRequestBuilders
-                                    .post(SEARCH_URL)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(searchDto))
+                            MockMvcRequestBuilders.get(SEARCH_URL)
+                                    .params(param))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Investor waitlist requests not found"));
         }
