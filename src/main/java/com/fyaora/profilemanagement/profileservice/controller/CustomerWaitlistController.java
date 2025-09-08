@@ -9,6 +9,7 @@ import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -68,8 +69,14 @@ public class CustomerWaitlistController {
     )
     @GetMapping("/search")
     public ResponseEntity<?> searchWaitlist(
+            @Parameter(
+                    description = "Start date (format: YYYY-MM-DD)"
+            )
             @RequestParam(value = "from", required = false)
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @Parameter(
+                    description = "End date (format: YYYY-MM-DD)"
+            )
             @RequestParam(value = "to", required = false)
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(value = "email", required = false) String email,
