@@ -46,10 +46,10 @@ jobs:
         COVERAGE=$(mvn jacoco:report | grep -oP 'Total.*?(\d+)%' | tail -1 | grep -oP '\d+(?=%)')
         echo "Coverage: ${COVERAGE}%"
         if [ "$COVERAGE" -lt 80 ]; then
-          echo "❌ Coverage ${COVERAGE}% is below required 80%"
+          echo "Coverage ${COVERAGE}% is below required 80%"
           exit 1
         else
-          echo "✅ Coverage ${COVERAGE}% meets requirement"
+          echo "Coverage ${COVERAGE}% meets requirement"
         fi
         
     # Upload coverage reports (optional)
