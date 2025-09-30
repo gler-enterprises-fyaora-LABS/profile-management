@@ -154,8 +154,12 @@
                 </configuration>
             </plugin>
 
+<<<<<<< HEAD
             <!-- Maven Compiler Plugin devops added -->
 <<<<<<< HEAD
+=======
+            <!-- Surefire plugin for tests -->
+>>>>>>> 3747cbee8a5137248ffad7d89b759039cf5c10e2
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -166,6 +170,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
+<<<<<<< HEAD
                     <source>17</source>
                     <target>17</target>
                 </configuration>
@@ -192,6 +197,11 @@
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
             </plugin>
+=======
+                    <testFailureIgnore>false</testFailureIgnore>
+                </configuration>
+            </plugin>
+>>>>>>> 3747cbee8a5137248ffad7d89b759039cf5c10e2
 
             <!-- JaCoCo plugin for coverage -->
             <plugin>
