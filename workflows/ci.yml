@@ -4,6 +4,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main, develop, feature/*, hotfix/* ]
+    - main
+    - feature/* # Feature branches
   pull_request:
     branches: [ main, develop ]
 
