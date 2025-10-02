@@ -1,7 +1,7 @@
 package com.fyaora.profilemanagement.profileservice.model.db.mapper;
 
 import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
-import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.ServiceOffered;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.WaitlistServiceOffered;

@@ -5,7 +5,7 @@ import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
 import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlistWrapper;
 import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
-import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistService;
 import com.fyaora.profilemanagement.profileservice.service.WaitlistServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +53,7 @@ public class ServiceProviderWaitlistController {
             }
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinWaitList(@Valid @RequestBody ServiceProviderWaitlist serviceProviderWaitlist) {
+    public ResponseEntity<ResponseDTO> joinWaitList(@Valid @RequestBody ServiceProviderWaitlist serviceProviderWaitlist) {
         if (StringUtils.isBlank(serviceProviderWaitlist.telnum())) {
             throw new IllegalArgumentException(
                     messageSource.getMessage("telnum.notempty", null, LocaleContextHolder.getLocale()));
@@ -76,7 +76,7 @@ public class ServiceProviderWaitlistController {
             }
     )
     @GetMapping("/search")
-    public ResponseEntity<?> searchWaitlist(
+    public ResponseEntity<ServiceProviderWaitlistWrapper> searchWaitlist(
             @Parameter(
                     description = "Start date (format: YYYY-MM-DD)"
             )

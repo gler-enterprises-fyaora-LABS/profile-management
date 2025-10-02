@@ -513,6 +513,14 @@ public class TestUtils {
                 """;
     }
 
+    public static String addInquire_longMessage() {
+        return """
+                 { "firstName": "first", "lastName": "last name", "email": "test@hotmail.com", 
+                 "message": "Inquiry with id 123 was not found in the system. This may happen if the inquiry was deleted, the id is incorrect, or it was never created. Please verify the id and try again."
+                 }
+                """;
+    }
+
     public static String addInquire_negative1() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "", "message": "test message" }
@@ -540,6 +548,38 @@ public class TestUtils {
     public static String addInquire_negative5() {
         return """
                  { "firstName": "first", "lastName": "last name", "email": "@@#$$", "message": "test message" }
+                """;
+    }
+
+
+    /***************************************************************************************/
+    /*************************** Service Offered Request Objects ***************************/
+    /***************************************************************************************/
+
+    public static String addService_offered() {
+        return """
+                {
+                    "name": "service01",
+                    "description": "Test service"
+                }
+                """;
+    }
+
+    public static String addServiceOffered_negative1() {
+        return """
+                {
+                    "name": "",
+                    "description": "Test service"
+                }
+                """;
+    }
+
+    public static String addServiceOffered_negative2() {
+        return """
+                {
+                    "name": "               ",
+                    "description": "Test service"
+                }
                 """;
     }
 }

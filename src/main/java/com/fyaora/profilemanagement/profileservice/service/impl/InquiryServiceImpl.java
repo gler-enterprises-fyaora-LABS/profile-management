@@ -75,6 +75,16 @@ public class InquiryServiceImpl implements InquiryService {
         return results;
     }
 
+    @Override
+    public String readInquiry(final Long id) {
+        Inquiry inquiry = inquiryRepository.findById(id).orElse(null);
+        if (null != inquiry) {
+            return  inquiry.getMessage();
+        } else {
+            throw new ResourceNotFoundException(String.format("Inquiry not found with id: %s", id));
+        }
+    }
+
     private Specification<Inquiry> createdAfter(LocalDateTime from) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get("createdDatetime"), from);
     }

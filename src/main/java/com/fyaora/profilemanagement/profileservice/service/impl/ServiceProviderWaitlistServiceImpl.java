@@ -1,10 +1,11 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
+import com.fyaora.profilemanagement.profileservice.advice.DuplicateWaitlistRequestException;
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
 import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
 import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
 import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
-import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.ServiceOffered;
 import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,6 +52,11 @@ public class ServiceProviderWaitlistServiceImpl implements WaitlistService {
     @Transactional
     public void joinWaitlist(WaitlistRequest waitlistRequest) {
         if (waitlistRequest instanceof ServiceProviderWaitlist serviceProviderRequestDTO) {
+            Optional<Waitlist> optWaitlist = waitlistRepository.findByEmailAndEnabled(serviceProviderRequestDTO.email(), Boolean.TRUE);
+            if  (optWaitlist.isPresent()) {
+                throw new DuplicateWaitlistRequestException(serviceProviderRequestDTO.email());
+            }
+
             Waitlist waitlist = serviceProviderWaitlistMapper.toEntity(serviceProviderRequestDTO);
             waitlist.setUserType(UserTypeEnum.SERVICE_PROVIDER);
             waitlist.setCreatedDatetime(LocalDateTime.now());

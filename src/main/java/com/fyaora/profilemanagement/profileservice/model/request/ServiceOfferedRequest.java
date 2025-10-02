@@ -2,8 +2,12 @@ package com.fyaora.profilemanagement.profileservice.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -15,7 +19,7 @@ public class ServiceOfferedRequest {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
 
-    @NotEmpty(message = "{service.name.notempty}")
+    @NotBlank(message = "{service.name.notempty}")
     @JsonProperty("name")
     private String name;
 
