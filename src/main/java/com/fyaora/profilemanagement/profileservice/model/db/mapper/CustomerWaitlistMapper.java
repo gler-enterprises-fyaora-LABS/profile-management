@@ -1,6 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.model.db.mapper;
 
-import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.CustomerWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Waitlist;
 import org.mapstruct.Mapper;
 

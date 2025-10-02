@@ -1,10 +1,12 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyaora.profilemanagement.profileservice.model.request.InquiryRequest;
 import com.fyaora.profilemanagement.profileservice.model.db.entity.Inquiry;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.stream.Stream;
@@ -64,7 +67,7 @@ class InquiryControllerIT {
                         .post(ADD_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-                ).andExpect(MockMvcResultMatchers.status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully added the inquiry"))
                 .andReturn();
 
@@ -77,7 +80,7 @@ class InquiryControllerIT {
                         .message(rs.getString("message"))
                         .build(), dto.email());
 
-        Assertions.assertThat(dto).usingRecursiveComparison().isEqualTo(dto);
+        assertThat(dto).usingRecursiveComparison().isEqualTo(dto);
     }
 
     static Stream<Arguments> provideInvalidInquiryJSON() {
@@ -100,7 +103,7 @@ class InquiryControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                 )
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.fieldErrors[0].field").value(field))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.fieldErrors[0].message").value(msg));
     }
@@ -115,7 +118,7 @@ class InquiryControllerIT {
                                 .param("to", "2025-08-30")
                                 .param("pageNum", "0")
                                 .param("pageSize", "20"))
-                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andExpect(status().isOk())
                         .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.jsonPath("$.results").isArray())
                         .andExpect(MockMvcResultMatchers.jsonPath("$.results.length()").value(20));
@@ -132,7 +135,7 @@ class InquiryControllerIT {
                         .param("pageNum", "1")
                         .param("pageSize", "10"))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results").isArray())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results.length()").value(10))
@@ -155,7 +158,7 @@ class InquiryControllerIT {
                         .param("pageNum", "0")
                         .param("pageSize", "10"))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results").isArray())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results.length()").value(1))
@@ -176,7 +179,7 @@ class InquiryControllerIT {
                         .param("pageNum", "0")
                         .param("pageSize", "10"))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results").isArray())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results.length()").value(1))
@@ -194,7 +197,7 @@ class InquiryControllerIT {
         mockMvc.perform(MockMvcRequestBuilders
                         .get(SEARCH_URL))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results").isArray())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results.length()").value(10))
@@ -217,8 +220,39 @@ class InquiryControllerIT {
                         .param("pageNum", "0")
                         .param("pageSize", "10"))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(status().isNotFound())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Inquiry requests not found"));
+    }
+
+    @Test
+    @DisplayName("Should retrieved empty list if criteria is not matched")
+    @Sql(scripts = "classpath:/db/inquiry_details.sql")
+    void shouldReturnInquiry_msg() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(SEARCH_URL)
+                        .param("from", "2024-08-01")
+                        .param("to", "2024-08-30")
+                        .param("email", "matthew.harris@example.com")
+                        .param("pageNum", "0")
+                        .param("pageSize", "10"))
+                .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Inquiry requests not found"));
+    }
+
+    @Test
+    @DisplayName("Should retrieve complete message")
+    @Sql(scripts = {"/db/table_clean.sql", "/db/test_data_for_long_message.sql"})
+    void shouldRetrieveComplete_msg() throws Exception {
+        MvcResult result =
+                mockMvc.perform(MockMvcRequestBuilders
+                        .get(SEARCH_URL + "/msg?id=1")
+                                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
+        String responseJson = result.getResponse().getContentAsString();
+        assertThat(responseJson).isEqualTo("I am very interested in learning more about the services your company provides, especially in terms of pricing, availability, and the different options you offer for new customers.");
     }
 }

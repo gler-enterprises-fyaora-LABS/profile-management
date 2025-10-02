@@ -19,7 +19,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -44,7 +49,7 @@ public class InquiryController {
             }
     )
     @PostMapping
-    public ResponseEntity<?> addInquiry(@Valid @RequestBody InquiryRequest inquiryRequest) {
+    public ResponseEntity<ResponseDTO> addInquiry(@Valid @RequestBody InquiryRequest inquiryRequest) {
         inquiryService.addInquiry(inquiryRequest);
         String message = messageSource.getMessage("inquiry.add.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
@@ -59,7 +64,7 @@ public class InquiryController {
             }
     )
     @GetMapping
-    public ResponseEntity<?> viewInquiry(
+    public ResponseEntity<InquiryResponse> viewInquiry(
             @Parameter(
                     description = "Start date (format: YYYY-MM-DD)"
             )
@@ -76,5 +81,18 @@ public class InquiryController {
         List<InquiryRequest> results = inquiryService.viewInquiries(from, to, email, pageNum, pageSize);
         InquiryResponse response = new InquiryResponse(results);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(
+            summary = "Read full inquiry message",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Return inquiry message", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
+            }
+    )
+    @GetMapping("/msg")
+    public ResponseEntity<String> readInquiry(@RequestParam(value = "id") long id) {
+        String msg = inquiryService.readInquiry(id);
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 }

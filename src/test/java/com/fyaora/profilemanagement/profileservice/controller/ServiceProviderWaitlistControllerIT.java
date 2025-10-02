@@ -1,11 +1,12 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.model.response.ServiceProviderWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.ServiceProviderWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import com.jayway.jsonpath.JsonPath;
@@ -89,6 +90,44 @@ class ServiceProviderWaitlistControllerIT {
 
     @Nested
     class NegativeScenarios {
+        @Test
+        @DisplayName("Should not save duplicated waitlist request")
+        @Sql(scripts = {"/db/table_clean.sql", "/db/add_services.sql"})
+        void shouldNotSaveDuplicatedCustomerWaitlistRequest() throws Exception {
+            String dto = TestUtils.getWaitlistServiceProviderRequestDTO1();
+
+            mockMvc.perform(
+                            MockMvcRequestBuilders.post(JOIN_URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(dto))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully joined the waitlist"));
+
+            ServiceProviderWaitlist deObj = objectMapper.readValue(dto, ServiceProviderWaitlist.class);
+            ServiceProviderWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
+
+            assertThat(deObj.email()).isEqualTo(actualFromDb.email());
+            assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
+            assertThat(deObj.postcode()).isEqualTo(actualFromDb.postcode());
+
+            // Duplicate waitlist request
+            MvcResult result = mockMvc.perform(
+                            MockMvcRequestBuilders.post(JOIN_URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(dto))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andReturn();
+
+            String responseJson = result.getResponse().getContentAsString();
+            String actualMessages = JsonPath.parse(responseJson).read("$.message");
+
+            assertThat(actualMessages).contains("Waitlist request already exists for email: test@hotmail.com");
+
+            String SQL = "SELECT COUNT(*) FROM waitlist";
+            long count = jdbcTemplate.queryForObject(SQL, Long.class);
+            assertEquals(1, count);
+        }
+
         static Stream<Arguments> provideWaitlistServiceProviderRequest_nagativeWithFieldErrors() {
             String requestDTO1 = TestUtils.getWaitlistServiceProviderRequest_negative1();
             String requestDTO2 = TestUtils.getWaitlistServiceProviderRequest_negative2();

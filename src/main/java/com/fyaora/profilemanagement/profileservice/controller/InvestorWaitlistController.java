@@ -1,6 +1,6 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
-import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.InvestorWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlistWrapper;
 import com.fyaora.profilemanagement.profileservice.model.response.MessageDTO;
 import com.fyaora.profilemanagement.profileservice.model.response.ResponseDTO;
@@ -52,7 +52,7 @@ public class InvestorWaitlistController {
             }
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinWaitlist(@Valid @RequestBody InvestorWaitlist investorWaitlist) {
+    public ResponseEntity<ResponseDTO> joinWaitlist(@Valid @RequestBody InvestorWaitlist investorWaitlist) {
         WaitlistService service = waitlistServiceFactory.getService(WaitlistProcess.INVESTOR);
         service.joinWaitlist(investorWaitlist);
         String message = messageSource.getMessage("investor.join.waitlist.success", null, LocaleContextHolder.getLocale());
@@ -68,7 +68,7 @@ public class InvestorWaitlistController {
             }
     )
     @GetMapping("/search")
-    public ResponseEntity<?> searchWaitlist(
+    public ResponseEntity<InvestorWaitlistWrapper> searchWaitlist(
             @Parameter(
                     description = "Start date (format: YYYY-MM-DD)"
             )

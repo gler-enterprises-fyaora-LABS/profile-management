@@ -3,25 +3,25 @@ package com.fyaora.profilemanagement.profileservice.model.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record InquiryRequest(
-        @JsonProperty(value = "id", access = JsonProperty.Access.READ_ONLY)
-        Long id,
-
-        @JsonProperty("firstName")
-        String firstName,
-
-        @JsonProperty("lastName")
-        String lastName,
-
+public record InvestorWaitlist(
         @JsonProperty("email")
         @NotBlank(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
         String email,
 
-        @JsonProperty("message")
-        @NotBlank(message = "{message.notempty}")
-        String message
-) {}
+        @JsonProperty("name")
+        @NotBlank(message = "{name.notempty}")
+        String name,
+
+        @JsonProperty("telnum")
+        @Pattern(
+                regexp = "^$|^\\+?[0-9\\s\\-()]{7,20}$",
+                message = "{telnum.invalid}"
+        )
+        String telnum
+
+) implements WaitlistRequest { }

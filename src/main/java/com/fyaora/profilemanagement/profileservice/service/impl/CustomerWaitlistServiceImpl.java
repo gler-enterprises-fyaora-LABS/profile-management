@@ -1,8 +1,9 @@
 package com.fyaora.profilemanagement.profileservice.service.impl;
 
+import com.fyaora.profilemanagement.profileservice.advice.DuplicateWaitlistRequestException;
 import com.fyaora.profilemanagement.profileservice.advice.ResourceNotFoundException;
 import com.fyaora.profilemanagement.profileservice.model.enums.WaitlistProcess;
-import com.fyaora.profilemanagement.profileservice.model.response.CustomerWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.CustomerWaitlist;
 import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
 import com.fyaora.profilemanagement.profileservice.model.request.WaitlistSearch;
 import com.fyaora.profilemanagement.profileservice.model.enums.UserTypeEnum;
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,11 @@ public class CustomerWaitlistServiceImpl implements WaitlistService {
     @Override
     public void joinWaitlist(WaitlistRequest waitlistRequest) {
         if (waitlistRequest instanceof CustomerWaitlist customerRequestDTO) {
+            Optional<Waitlist> optWaitlist = waitlistRepository.findByEmailAndEnabled(customerRequestDTO.email(), Boolean.TRUE);
+            if  (optWaitlist.isPresent()) {
+                throw new DuplicateWaitlistRequestException(customerRequestDTO.email());
+            }
+
             Waitlist waitlist = customerWaitlistMapper.toEntity(customerRequestDTO);
             waitlist.setUserType(UserTypeEnum.CUSTOMER);
             waitlist.setEnabled(Boolean.TRUE);

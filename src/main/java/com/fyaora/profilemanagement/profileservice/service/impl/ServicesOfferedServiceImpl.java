@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -23,7 +22,8 @@ public class ServicesOfferedServiceImpl implements ServicesOfferedService {
     @Autowired
     public ServicesOfferedServiceImpl(ServicesOfferedRepository servicesOfferedRepository,
                                       ServiceOfferedMapper serviceOfferedMapper,
-                                      MessageSource messageSource) {
+                                      MessageSource messageSource
+                                      ) {
         this.servicesOfferedRepository = servicesOfferedRepository;
         this.serviceOfferedMapper = serviceOfferedMapper;
         this.messageSource = messageSource;

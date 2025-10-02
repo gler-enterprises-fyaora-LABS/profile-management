@@ -43,7 +43,7 @@ public class ServiceOfferedController {
             }
     )
     @PostMapping
-    public ResponseEntity<?> addService(@RequestBody @Valid ServiceOfferedRequest serviceOfferedRequest) {
+    public ResponseEntity<ResponseDTO> addService(@RequestBody @Valid ServiceOfferedRequest serviceOfferedRequest) {
         servicesOfferedService.addService(serviceOfferedRequest);
         String message = messageSource.getMessage("service.add.success", null, LocaleContextHolder.getLocale());
         ResponseDTO response = new ResponseDTO(message);
@@ -58,7 +58,7 @@ public class ServiceOfferedController {
             }
     )
     @GetMapping
-    public ResponseEntity<?> getServices() {
+    public ResponseEntity<List<ServiceOfferedRequest>> getServices() {
         List<ServiceOfferedRequest> services = servicesOfferedService.getServices();
         return ResponseEntity.ok(services);
     }

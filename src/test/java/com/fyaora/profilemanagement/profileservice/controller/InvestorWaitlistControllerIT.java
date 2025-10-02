@@ -1,13 +1,15 @@
 package com.fyaora.profilemanagement.profileservice.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyaora.profilemanagement.profileservice.model.response.InvestorWaitlist;
+import com.fyaora.profilemanagement.profileservice.model.request.InvestorWaitlist;
 import com.fyaora.profilemanagement.profileservice.util.TestUtils;
 import com.jayway.jsonpath.JsonPath;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -80,14 +82,52 @@ class InvestorWaitlistControllerIT {
             InvestorWaitlist deObj = objectMapper.readValue(dto, InvestorWaitlist.class);
             InvestorWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
 
-            Assertions.assertThat(deObj.email()).isEqualTo(actualFromDb.email());
-            Assertions.assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
-            Assertions.assertThat(deObj.name()).isEqualTo(actualFromDb.name());
+            assertThat(deObj.email()).isEqualTo(actualFromDb.email());
+            assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
+            assertThat(deObj.name()).isEqualTo(actualFromDb.name());
         }
     }
 
     @Nested
     class NegativeScenarios {
+
+        @Test
+        @DisplayName("Should not save duplicated waitlist request")
+        @Sql(scripts = "/db/table_clean.sql")
+        void shouldNotSaveDuplicatedInvestorWaitlistRequest() throws Exception {
+            String dto = TestUtils.getWaitlistInvestorRequestDTO1();
+
+            mockMvc.perform(
+                            MockMvcRequestBuilders.post(JOIN_URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(dto))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Successfully joined the waitlist"));
+
+            InvestorWaitlist deObj = objectMapper.readValue(dto, InvestorWaitlist.class);
+            InvestorWaitlist actualFromDb = getWaitlistRequestFromDB(deObj.email());
+
+            assertThat(deObj.email()).isEqualTo(actualFromDb.email());
+            assertThat(deObj.telnum()).isEqualTo(actualFromDb.telnum());
+            assertThat(deObj.name()).isEqualTo(actualFromDb.name());
+
+            // Duplicate waitlist request
+            MvcResult result = mockMvc.perform(
+                            MockMvcRequestBuilders.post(JOIN_URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(dto))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andReturn();
+
+            String responseJson = result.getResponse().getContentAsString();
+            String actualMessages = JsonPath.parse(responseJson).read("$.message");
+
+            assertThat(actualMessages).contains("Waitlist request already exists for email: test@hotmail.com");
+
+            String SQL = "SELECT COUNT(*) FROM waitlist";
+            long count = jdbcTemplate.queryForObject(SQL, Long.class);
+            assertEquals(1, count);
+        }
 
         static Stream<Arguments> provideWaitlistInvestorRequest_nagative() {
             String requestDTO1 = TestUtils.getWaitlistInvestorRequest_negative1();
@@ -126,12 +166,12 @@ class InvestorWaitlistControllerIT {
             String responseJson = result.getResponse().getContentAsString();
             List<String> actualMessages = JsonPath.parse(responseJson).read("$.fieldErrors[*].message");
 
-            Assertions.assertThat(actualMessages)
+            assertThat(actualMessages)
                     .containsExactlyInAnyOrderElementsOf(messages);
 
             String SQL = "SELECT COUNT(*) FROM waitlist";
             long count = jdbcTemplate.queryForObject(SQL, Long.class);
-            Assertions.assertThat(count).isEqualTo(0);
+            assertThat(count).isEqualTo(0);
         }
     }
 
@@ -162,9 +202,9 @@ class InvestorWaitlistControllerIT {
             JsonNode root = objectMapper.readTree(responseJson);
             JsonNode results = root.get("results");
 
-            org.junit.jupiter.api.Assertions.assertNotNull(results);
-            org.junit.jupiter.api.Assertions.assertTrue(results.isArray());
-            org.junit.jupiter.api.Assertions.assertEquals(size, results.size());
+            assertNotNull(results);
+            assertTrue(results.isArray());
+            assertEquals(size, results.size());
         }
 
         @Test

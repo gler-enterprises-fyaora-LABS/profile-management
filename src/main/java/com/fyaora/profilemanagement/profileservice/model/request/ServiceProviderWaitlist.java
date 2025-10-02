@@ -1,22 +1,19 @@
-package com.fyaora.profilemanagement.profileservice.model.response;
+package com.fyaora.profilemanagement.profileservice.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fyaora.profilemanagement.profileservice.model.request.ServiceOfferedRequest;
-import com.fyaora.profilemanagement.profileservice.model.request.WaitlistRequest;
 import com.fyaora.profilemanagement.profileservice.model.response.deserializer.ServiceOfferedDTODeserializer;
 import com.fyaora.profilemanagement.profileservice.model.enums.VendorTypeEnum;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
-
 import java.util.List;
 
 @Builder(toBuilder = true)
 public record ServiceProviderWaitlist(
-        @NotEmpty(message = "{email.notempty}")
+        @NotBlank(message = "{email.notempty}")
         @Email(message = "{email.invalid}")
         @JsonProperty("email")
         String email,
@@ -28,7 +25,7 @@ public record ServiceProviderWaitlist(
         )
         String telnum,
 
-        @NotEmpty(message = "{postcode.notempty}")
+        @NotBlank(message = "{postcode.notempty}")
         @JsonProperty("postcode")
         String postcode,
 
