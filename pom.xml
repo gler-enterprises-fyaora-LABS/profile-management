@@ -199,49 +199,6 @@
                     </rules>
                 </configuration>
             </plugin>
-
-            <!-- Maven Antrun Plugin to Print Coverage -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>print-coverage</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <loadfile property="jacoco.csv" srcFile="${project.build.directory}/site/jacoco/jacoco.csv" failonerror="false"/>
-                                <script language="javascript"><![CDATA[
-                                    var csv = project.getProperty("jacoco.csv");
-                                    if (csv) {
-                                        var lines = csv.split('\n');
-                                        var totalMissed = 0;
-                                        var totalCovered = 0;
-                                        for (var i = 1; i < lines.length; i++) {
-                                            if (lines[i].trim()) {
-                                                var cols = lines[i].split(',');
-                                                if (cols.length >= 6) {
-                                                    totalMissed += parseInt(cols[3]) || 0;
-                                                    totalCovered += parseInt(cols[4]) || 0;
-                                                }
-                                            }
-                                        }
-                                        var total = totalMissed + totalCovered;
-                                        var percentage = total > 0 ? Math.round((totalCovered * 100) / total) : 0;
-                                        print("=====================================");
-                                        print("Total Coverage: " + percentage + "%");
-                                        print("=====================================");
-                                    }
-                                ]]></script>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
