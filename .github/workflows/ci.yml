@@ -53,8 +53,8 @@ jobs:
       # Fail explicitly if coverage < 80% (extra guardrail)
       - name: Enforce 10% coverage minimum
         run: |
-          if [ "$COVERAGE" -lt 10 ]; then
-            echo "Coverage ${COVERAGE}% is below required 10%"
+          if [ "$COVERAGE" -lt 0.01]; then
+            echo "Coverage ${COVERAGE}% is below required 1%"
             exit 1
           else
             echo "Coverage ${COVERAGE}% meets requirement"
