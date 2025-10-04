@@ -86,13 +86,14 @@ public class InquiryController {
     @Operation(
             summary = "Read full inquiry message",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Return inquiry message", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class))),
+                    @ApiResponse(responseCode = "200", description = "Return inquiry message", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTO.class)))
             }
     )
     @GetMapping("/msg")
-    public ResponseEntity<String> readInquiry(@RequestParam(value = "id") long id) {
+    public ResponseEntity<ResponseDTO> readInquiry(@RequestParam(value = "id") long id) {
         String msg = inquiryService.readInquiry(id);
-        return ResponseEntity.status(HttpStatus.OK).body(msg);
+        ResponseDTO response = new ResponseDTO(msg);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

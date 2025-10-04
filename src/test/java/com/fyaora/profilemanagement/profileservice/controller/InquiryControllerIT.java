@@ -253,6 +253,6 @@ class InquiryControllerIT {
                         .andExpect(status().isOk())
                         .andReturn();
         String responseJson = result.getResponse().getContentAsString();
-        assertThat(responseJson).isEqualTo("I am very interested in learning more about the services your company provides, especially in terms of pricing, availability, and the different options you offer for new customers.");
+        assertThat(responseJson).contains("I am very interested in learning more about the services your company provides, especially in terms of pricing, availability, and the different options you offer for new customers.");
     }
 }
