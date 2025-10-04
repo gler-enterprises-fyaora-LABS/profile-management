@@ -36,7 +36,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-        </dependencyManagement>
+        </dependencies>
     </dependencyManagement>
 
     <dependencies>
