@@ -27,19 +27,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build the project
       - name: Build with Maven
         run: mvn clean compile
 
-      # Run tests and generate JaCoCo report
       - name: Run tests with coverage
         run: mvn clean test jacoco:report
 
-      # Verify JaCoCo coverage threshold from pom.xml (80%)
       - name: Verify coverage with Maven
         run: mvn jacoco:check
 
-      # Extract coverage percentage from JaCoCo XML for badge/logs
       - name: Extract coverage percentage
         run: |
           REPORT="target/site/jacoco/jacoco.xml"
@@ -50,22 +46,19 @@ jobs:
           echo "Coverage: ${PERCENT}%"
           echo "COVERAGE=$PERCENT" >> $GITHUB_ENV
 
-      # Fail explicitly if coverage < 80% (extra guardrail)
-      - name: Enforce 10% coverage minimum
+      - name: Enforce 80% coverage minimum
         run: |
-          if [ "$COVERAGE" -lt 0.01]; then
-            echo "Coverage ${COVERAGE}% is below required 1%"
+          if [ "$COVERAGE" -lt 0.01 ]; then
+            echo " Coverage ${COVERAGE}% is below required 0.01%"
             exit 1
           else
-            echo "Coverage ${COVERAGE}% meets requirement"
+            echo " Coverage ${COVERAGE}% meets requirement"
           fi
 
-      # Upload JaCoCo report to Codecov for badge and dashboard
       - name: Upload coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v3
         with:
           files: ./target/site/jacoco/jacoco.xml
           fail_ci_if_error: true
-          flags: unittests
-          name: codecov-umbrella  
+          verbose: true
